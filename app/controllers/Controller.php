@@ -1,26 +1,31 @@
 <?php
+namespace app\controllers;
+
 abstract class Controller{
+
+
+    protected $viewPath;
+    protected $template;
+
     /**
      * Afficher une vue
      *
      * @param string $fichier
-     * @param array $data
      * @return void
      */
-    public function render(string $fichier, array $data = []){
-        extract($data);
+    public function render(string $view){
 
         // On démarre le buffer de sortie
         ob_start();
 
         // On génère la vue
-        require_once(ROOT.'views/'.strtolower(get_class($this)).'/'.$fichier.'.php');
-
+        require($this->viewPath . strtolower($view) . '.php');
+        
         // On stocke le contenu dans $content
         $content = ob_get_clean();
-
+        
         // On fabrique le "template"
-        require_once(ROOT.'views/layout/default.php');
+        require($this->viewPath . 'templates/' . strtolower($this->view) . '.php');
     }
 
     /**
