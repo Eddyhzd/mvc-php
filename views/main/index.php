@@ -1,1 +1,1 @@
-<p>Bienvenue sur la page d'accueil</p>
+<p>Page d'accueil du site</p>
