@@ -57,7 +57,7 @@ class JourCompteRenduController extends Controller
             }
 
             // On redirige
-            header('Location: /compteRendu');
+            header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
             exit;
         }else{
             // L'utilisateur n'est pas connecté
@@ -87,7 +87,7 @@ class JourCompteRenduController extends Controller
             if(!$jour){
                 http_response_code(404);
                 $_SESSION['erreur'] = "Le jour choisi n'est pas modifiable";
-                header('Location: /compteRendu');
+                header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
                 exit;
             }
 
@@ -126,7 +126,7 @@ class JourCompteRenduController extends Controller
 
                 // On redirige
                 $_SESSION['message'] = "Note du {$date} mise à jour avec succès";
-                header('Location: /compteRendu');
+                header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
                 exit;
             }
 

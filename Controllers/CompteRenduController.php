@@ -37,6 +37,59 @@ class CompteRenduController extends Controller{
     }
 
     /**
+     * Cette méthode affichera une page du compte rendu correspondant aux paramètres
+     * @param int $id_salarie
+     * @param string $date
+     * @return void 
+     */
+    public function affiche(int $id_salarie, string $date){
+        // On vérifie si l'utilisateur est connecté
+        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
+            // On instancie le modèle correspondant au compte rendu et au jour pour les comptes rendu
+            $compteRenduModel = new CompteRenduModel;
+            $jourCompteRenduModel = new JourCompteRenduModel;
+
+            // On va chercher le compte rendu de l'utilisateur 
+            $cr = $compteRenduModel->findByDateAndSalarie(date_format(new \Datetime($date), 'Y-m-01'), $id_salarie);
+
+            // On va chercher les jours du compte rendu de l'utilisateur 
+            $jcr = $jourCompteRenduModel->findByMounthAndSalarie(
+                date_format(new \Datetime($date), 'Y-m-01'),
+                date_format(new \Datetime($date), 'Y-m-t'),
+                $id_salarie
+            );
+
+            // Si le compte rendu n'existe pas, on retourne au compte rendu courant
+            if(!$cr || !$jcr){
+                http_response_code(404);
+                $_SESSION['erreur'] = "Le compte rendu choisi est introuvable";
+                header('Location: /compteRendu');
+                exit;
+            }
+
+            // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
+            if($cr->ID_SALARIE != $_SESSION['user']['id']){
+                if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
+                    $_SESSION['erreur'] = "Vous n'êtes pas autorisé à accéder ce compte rendu";
+                    header('Location: /compteRendu');
+                    exit;
+                }
+            }
+
+            $prenom = 'Quelqu\'un';
+            $nom = 'D\'autre';
+
+            // On génère la vue
+            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jcr'));
+        }else{
+            // L'utilisateur n'est pas connecté
+            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
+            header('Location: /users/login');
+            exit;
+        }
+    }
+
+    /**
      * Modifier infos véhicule
      * @param int $id_salarie
      * @param string $date
@@ -55,14 +108,14 @@ class CompteRenduController extends Controller{
             if(!$cr){
                 http_response_code(404);
                 $_SESSION['erreur'] = "Le compte rendu choisi n'est pas modifiable";
-                header('Location: /compteRendu');
+                header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
                 exit;
             }
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
                 if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
-                    $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
+                    $_SESSION['erreur'] = "Vous n'êtes pas autorisé à modifier ce compte rendu";
                     header('Location: /compteRendu');
                     exit;
                 }
@@ -94,7 +147,7 @@ class CompteRenduController extends Controller{
 
                 // On redirige
                 $_SESSION['message'] = "Infos du compte rendu du " . date_format(new \Datetime($cr->DATE_CR), 'Y-m') . " mise à jour avec succès";
-                header('Location: /compteRendu');
+                header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
                 exit;
             }
 
