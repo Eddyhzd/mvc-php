@@ -5,24 +5,22 @@ use App\Models\CompteRenduModel;
 use App\Models\JourCompteRenduModel;
 use App\Core\Form;
 
-class CompteRenduController extends Controller
-{
+class CompteRenduController extends Controller{
     /**
      * Cette méthode affichera une page du compte rendu courant de l'utilisateur
      * @return void 
      */
-    public function index()
-    {
+    public function index(){
         // On vérifie si l'utilisateur est connecté
         if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
             // On instancie le modèle correspondant au compte rendu et au jour pour les comptes rendu
             $compteRenduModel = new CompteRenduModel;
             $jourCompteRenduModel = new JourCompteRenduModel;
 
-            // On va chercher le compte rendu courant rendu de l'utilisateur 
+            // On va chercher le compte rendu courant de l'utilisateur 
             $cr = $compteRenduModel->findByDateAndSalarie(date('Y-m-01'), $_SESSION['user']['id']);
 
-            // On va chercher les jours du compte rendu courant rendu de l'utilisateur 
+            // On va chercher les jours du compte rendu courant de l'utilisateur 
             $jcr = $jourCompteRenduModel->findByMounthAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
 
             $prenom = 'Eddy';
@@ -39,92 +37,30 @@ class CompteRenduController extends Controller
     }
 
     /**
-     * Modifier un Jour pour ajouter/supprimer un ticket
-     * @return void 
-     */
-    public function modifierTicket(){
-        // On vérifie si l'utilisateur est connecté
-        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
-            // On va vérifier si le jour existe dans la base
-            // On instancie notre modèle
-            $jourCompteRenduModel = new JourCompteRenduModel;
-
-            // On cherche l'annonce avec l'id $id
-            $jour = $jourCompteRenduModel->findByDateAndSalarie($_POST['date'], $_POST['id_salarie']);
-
-            // Si le jour n'existe pas, on retourne au compte rendu
-            if(!$jour){
-                http_response_code(404);
-                $_SESSION['erreur'] = "Le jour choisi n'est pas modifiable";
-                header('Location: /compteRendu');
-                exit;
-            }
-
-            // On vérifie si l'utilisateur est propriétaire de du compte rendu ou admin
-            if($jour->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
-                    $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
-                    header('Location: /compteRendu');
-                    exit;
-                }
-            }
-
-            // On traite le formulaire
-            if(Form::validate($_POST, ['date', 'id_salarie'])){
-                // On se protège contre les failles XSS
-                $date = strip_tags($_POST['date']);
-                $id_salarie = strip_tags($_POST['id_salarie']);
-                $ticket = strip_tags($_POST['ticket']);
-
-                // On stocke le jour
-                $jourCompteRenduModif = new JourCompteRenduModel;
-
-                // On hydrate le jour
-                $jourCompteRenduModif->setId_salarie($jour->ID_SALARIE)
-                    ->setDate_jour($date)
-                    ->setTicket($ticket);
-
-                // On met à jour le jour du compte rendu
-                $jourCompteRenduModif->update();
-            }
-
-            // On redirige
-            header('Location: /compteRendu');
-            exit;
-        }else{
-            // L'utilisateur n'est pas connecté
-            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
-            header('Location: /users/login');
-            exit;
-        }
-    }
-
-    /**
-     * Modifier un Jour
+     * Modifier infos véhicule
      * @param int $id_salarie
      * @param string $date
      * @return void 
      */
-    public function modifierJour(int $id_salarie, string $date){
+    public function modifierVehicule(int $id_salarie, string $date){
         // On vérifie si l'utilisateur est connecté
         if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
-            // On va vérifier si le jour existe dans la base
-            // On instancie notre modèle
-            $jourCompteRenduModel = new JourCompteRenduModel;
+            // On instancie le modèle correspondant au compte rendu
+            $compteRenduModel = new CompteRenduModel;
 
-            // On cherche l'annonce avec l'id $id
-            $jour = $jourCompteRenduModel->findByDateAndSalarie($date, $id_salarie);
+            // On va chercher le compte rendu courant de l'utilisateur 
+            $cr = $compteRenduModel->findByDateAndSalarie($date, $id_salarie);
 
-            // Si le jour n'existe pas, on retourne au compte rendu
-            if(!$jour){
+            // Si le compte rendu n'existe pas, on retourne au compte rendu courant
+            if(!$cr){
                 http_response_code(404);
-                $_SESSION['erreur'] = "Le jour choisi n'est pas modifiable";
+                $_SESSION['erreur'] = "Le compte rendu choisi n'est pas modifiable";
                 header('Location: /compteRendu');
                 exit;
             }
 
-            // On vérifie si l'utilisateur est propriétaire de du compte rendu ou admin
-            if($jour->ID_SALARIE != $_SESSION['user']['id']){
+            // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
+            if($cr->ID_SALARIE != $_SESSION['user']['id']){
                 if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
                     $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
                     header('Location: /compteRendu');
@@ -133,31 +69,31 @@ class CompteRenduController extends Controller
             }
 
             // On traite le formulaire
-            if(Form::validate($_POST, ['date', 'id_salarie'])){
+            if($_SERVER['REQUEST_METHOD'] === 'POST'){
                 // On se protège contre les failles XSS
-                $date = strip_tags($_POST['date']);
-                $id_salarie = strip_tags($_POST['id_salarie']);
-                $notes = strip_tags($_POST['notes']);
-                $frais = strip_tags($_POST['frais']);
-                $km_perso = strip_tags($_POST['km_perso']);
-                $km_pro = strip_tags($_POST['km_pro']);
+                $date = strip_tags($date);
+                $id_salarie = strip_tags($id_salarie);
+                $num_vehicule = strip_tags($_POST['num_vehicule']);
+                $km_debut = strip_tags($_POST['km_debut']);
+                $km_fin = strip_tags($_POST['km_fin']);
+                $qte_carburant = strip_tags($_POST['qte_carburant']);
 
                 // On stocke le jour
-                $jourCompteRenduModif = new JourCompteRenduModel;
+                $compteRenduModif = new CompteRenduModel;
 
                 // On hydrate le jour
-                $jourCompteRenduModif->setId_salarie($jour->ID_SALARIE)
-                    ->setDate_jour($date)
-                    ->setNotes_jour($notes)
-                    ->setFrais_jour($frais)
-                    ->setKm_vehicule_perso($km_perso)
-                    ->setKm_vehicule_pro($km_pro);
+                $compteRenduModif->setId_salarie($cr->ID_SALARIE)
+                    ->setDate_cr($date)
+                    ->setNum_vehicule($num_vehicule)
+                    ->setKm_debut($km_debut)
+                    ->setKm_fin($km_fin)
+                    ->setQte_carburant($qte_carburant);
 
                 // On met à jour le jour du compte rendu
-                $jourCompteRenduModif->update();
+                $compteRenduModif->update();
 
                 // On redirige
-                $_SESSION['message'] = "Note du {$date} mise à jour avec succès";
+                $_SESSION['message'] = "Infos du compte rendu du " . date_format(new \Datetime($cr->DATE_CR), 'Y-m') . " mise à jour avec succès";
                 header('Location: /compteRendu');
                 exit;
             }
@@ -165,53 +101,42 @@ class CompteRenduController extends Controller
             $form = new Form;
 
             $form->debutForm()
-                ->ajoutInput('hidden', 'id_salarie', [
-                    'id' => 'id_salarie',
+                ->ajoutLabelFor('num_vehicule', 'Immatriculation :')
+                ->ajoutTextarea('num_vehicule', isset($cr->NUM_VEHICULE) ? $cr->NUM_VEHICULE : '', [
+                    'id' => 'num_vehicule',
                     'class' => 'form-control',
-                    'value' => $jour->ID_SALARIE
+                    'maxlength' => 9
                 ])
-                ->ajoutLabelFor('date', 'Date :')
-                ->ajoutInput('date', 'date', [
-                    'id' => 'date',
+                ->ajoutLabelFor('km_debut', 'Kms Début :')
+                ->ajoutInput('number', 'km_debut', [
+                    'id' => 'km_debut',
                     'class' => 'form-control',
-                    'value' => $jour->DATE_JOUR
-                ])
-                ->ajoutLabelFor('notes', 'Notes :')
-                ->ajoutTextarea('notes', $jour->NOTES_JOUR, [
-                    'id' => 'description',
-                    'class' => 'form-control'
-                ])
-                ->ajoutLabelFor('frais', 'Frais :')
-                ->ajoutInput('number', 'frais', [
-                    'id' => 'frais',
-                    'class' => 'form-control',
-                    'value' => $jour->FRAIS_JOUR,
+                    'value' => $cr->KM_DEBUT,
                     'min' => 0,
-                    'max' => 100000,
-                    'step' => 0.01
+                    'max' => 1000000
                 ])
-                ->ajoutLabelFor('km_perso', 'Km Perso :')
-                ->ajoutInput('number', 'km_perso', [
-                    'id' => 'km_perso',
+                ->ajoutLabelFor('km_fin', 'Kms Fin :')
+                ->ajoutInput('number', 'km_fin', [
+                    'id' => 'km_fin',
                     'class' => 'form-control',
-                    'value' => $jour->KM_VEHICULE_PERSO,
+                    'value' => $cr->KM_FIN,
                     'min' => 0,
-                    'max' => 100000,
-                    'step' => 0.01
+                    'max' => 1000000
                 ])
-                ->ajoutLabelFor('km_pro', 'Km Pro :')
-                ->ajoutInput('number', 'km_pro', [
-                    'id' => 'km_pro',
+                ->ajoutLabelFor('qte_carburant', 'Quantité de carburant (L) :')
+                ->ajoutInput('number', 'qte_carburant', [
+                    'id' => 'qte_carburant',
                     'class' => 'form-control',
-                    'value' => $jour->KM_VEHICULE_PRO,
+                    'value' => $cr->QTE_CARBURANT,
                     'min' => 0,
-                    'max' => 100000,
+                    'max' => 1000,
                     'step' => 0.01
                 ])
                 ->ajoutBouton('Modifier', ['class' => 'btn btn-primary'])
                 ->finForm()
             ;
 
+            // On génère la vue
             $this->render('compteRendu/modifier', ['form' => $form->create()]);
         }else{
             // L'utilisateur n'est pas connecté

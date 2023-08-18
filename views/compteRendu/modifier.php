@@ -1,2 +1,2 @@
-<h1>Modifier un jour</h1>
+<h1>Modifier les infos du véhicule</h1>
 <?= $form ?>

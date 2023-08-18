@@ -30,6 +30,28 @@ class CompteRenduModel extends Model
         return $this->requete("SELECT * FROM RH_CR_MOIS WHERE DATE_CR = ? AND ID_SALARIE = ?", [$date, $id_salarie])->fetch();
     }
 
+    public function update(){
+        $champs = [];
+        $valeurs = [];
+
+        // On boucle pour éclater le tableau
+        foreach ($this as $champ => $valeur) {
+            // on retire les valeurs null et les champs qui ne doivent pas être modifiés 
+            if ($valeur !== null && !in_array($champ, ['db', 'table', 'id', 'id_salarie', 'date_cr'])) {
+                $champs[] = strtoupper($champ) ." = ?";
+                $valeurs[] = $valeur;
+            }
+        }
+        $valeurs[] = $this->date_cr;
+        $valeurs[] = $this->id_salarie;
+
+        // On transforme le tableau "champs" en une chaine de caractères
+        $str_champs = implode(', ', $champs);
+
+        // On exécute la requête
+        return $this->requete('UPDATE ' . $this->table . ' SET ' . $str_champs . ' WHERE DATE_CR = ? AND ID_SALARIE = ?', $valeurs);
+    }
+
     public function getId(){
         return $this->id;
     }
