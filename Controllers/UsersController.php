@@ -32,13 +32,12 @@ class UsersController extends Controller
                     // Le mot de passe est bon
                     // On crée la session
                     $user = $usersModel->hydrate([
-                        'id' => 509102,
+                        'id' => '509102',
                         'email' => $_POST['email'],
                         'roles' => ['ROLE']
                     ]);
                     $user->setSession();
-                    $_SESSION['message'] = 'Connecté';
-                    header('Location: /users/login');
+                    header('Location: /compteRendu');
                     exit;
                 }else{
                     // Mauvais mot de passe
@@ -75,7 +74,7 @@ class UsersController extends Controller
      */
     public function logout(){
         unset($_SESSION['user']);
-        header('Location: /'. $_SERVER['HTTP_REFERER']);
+        header('Location: /');
         exit;
     }
 
