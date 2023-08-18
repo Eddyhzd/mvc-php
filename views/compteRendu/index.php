@@ -32,8 +32,10 @@
           <form method="post" action="/jourCompteRendu/modifierTicket">
             <input type="hidden" id="id_salarie" name="id_salarie" value="<?= $cr->ID_SALARIE ?>" />
             <input type="hidden" id="ticket" name="ticket" value="<?= $jour->TICKET == 0 ? 1 : 0 ?>" />
-            <button class="btn btn-<?= $jour->TICKET == 0 ? "outline-dark" : "success" ?>" type="submit" name="date" value="<?= $jour->DATE_JOUR ?>" ><?= $jour->TICKET == 0 ? "+ " : "- " ?><i class="fa fa-credit-card" aria-hidden="true"></i></button>
-            <a class="btn btn-light" href="/jourCompteRendu/modifierJour/<?= $jour->ID_SALARIE ?>/<?= $jour->DATE_JOUR ?>"><?= trim($jour->NOTES_JOUR) == '' ? "+ " : "<i class=\"fa fa-eye\" aria-hidden=\"true\"></i>" ?><i class="fa fa-file-text-o" aria-hidden="true"></i></a>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              <button class="btn btn-sm btn-<?= $jour->TICKET == 0 ? "outline-dark" : "success" ?>" type="submit" name="date" value="<?= $jour->DATE_JOUR ?>" ><?= $jour->TICKET == 0 ? "+ " : "- " ?><i class="fa fa-credit-card" aria-hidden="true"></i></button>
+              <a class="btn btn-sm btn-<?= trim($jour->NOTES_JOUR) == '' ? "outline-dark" : "outline-info" ?>" href="/jourCompteRendu/modifierJour/<?= $jour->ID_SALARIE ?>/<?= $jour->DATE_JOUR ?>"><?= trim($jour->NOTES_JOUR) == '' ? "+ " : "<i class=\"fa fa-eye\" aria-hidden=\"true\"></i>" ?><i class="fa fa-file-text-o" aria-hidden="true"></i></a>
+            </div>
           </form>
         </div>
       </div>
