@@ -20,6 +20,7 @@ class JourCompteRenduModel extends Model
     public function __construct()
     {
         $this->table = 'RH_CR_JOURS';
+        $this->base = 'ESI';
     }
 
     public function findAllByDate(string $date){

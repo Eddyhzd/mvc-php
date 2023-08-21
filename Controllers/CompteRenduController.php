@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Models\CompteRenduModel;
 use App\Models\JourCompteRenduModel;
+use App\Models\UsersModel;
 use App\Core\Form;
 
 class CompteRenduController extends Controller{
@@ -23,8 +24,8 @@ class CompteRenduController extends Controller{
             // On va chercher les jours du compte rendu courant de l'utilisateur 
             $jcr = $jourCompteRenduModel->findByMounthAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
 
-            $prenom = 'Eddy';
-            $nom = 'HAZARD';
+            $prenom = ucfirst($_SESSION['user']['prenom']);
+            $nom = strtoupper($_SESSION['user']['nom']);
 
             // On génère la vue
             $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jcr'));
@@ -45,9 +46,10 @@ class CompteRenduController extends Controller{
     public function affiche(int $id_salarie, string $date){
         // On vérifie si l'utilisateur est connecté
         if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
-            // On instancie le modèle correspondant au compte rendu et au jour pour les comptes rendu
+            // On instancie le modèle correspondant au compte rendu, au jour pour les comptes rendu et au user
             $compteRenduModel = new CompteRenduModel;
             $jourCompteRenduModel = new JourCompteRenduModel;
+            $usersModel = new UsersModel;
 
             // On va chercher le compte rendu de l'utilisateur 
             $cr = $compteRenduModel->findByDateAndSalarie(date_format(new \Datetime($date), 'Y-m-01'), $id_salarie);
@@ -59,13 +61,19 @@ class CompteRenduController extends Controller{
                 $id_salarie
             );
 
+            // On va chercher l'utilisateur 
+            $user = $usersModel->findOneById($id_salarie);
+
             // Si le compte rendu n'existe pas, on retourne au compte rendu courant
-            if(!$cr || !$jcr){
+            if(!$cr || !$jcr || !$user){
                 http_response_code(404);
                 $_SESSION['erreur'] = "Le compte rendu choisi est introuvable";
                 header('Location: /compteRendu');
                 exit;
             }
+
+            $prenom = ucfirst($user->PSA_PRENOM);
+            $nom = strtoupper($user->PSA_LIBELLE);
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
@@ -75,9 +83,6 @@ class CompteRenduController extends Controller{
                     exit;
                 }
             }
-
-            $prenom = 'Quelqu\'un';
-            $nom = 'D\'autre';
 
             // On génère la vue
             $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jcr'));

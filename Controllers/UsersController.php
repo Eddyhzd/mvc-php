@@ -16,6 +16,10 @@ class UsersController extends Controller
             // On vérifie si le formulaire est complet
             if(Form::validate($_POST, ['email', 'password'])){
                 // Le formulaire est complet
+                // On se protège contre les failles XSS
+                $email = strip_tags($_POST['email']);
+                $password = strip_tags($_POST['password']);
+
                 $usersModel = new UsersModel;
 
                 $ldapconn = ldap_connect("10.200.160.1", "389") or die("Could not connect to LDAP server.");
@@ -23,17 +27,20 @@ class UsersController extends Controller
                 ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
                 ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
 
-                $authenticated = @ldap_bind($ldapconn, $_POST['email'], $_POST['password']);
+                $authenticated = @ldap_bind($ldapconn, $email, $password);
 
                 ldap_unbind($ldapconn);
 
                 // On vérifie si le mot de passe est correct
                 if($authenticated){
                     // Le mot de passe est bon
+                    $userInfos = $usersModel->findOneByEmail($email);
                     // On crée la session
                     $user = $usersModel->hydrate([
-                        'id' => '509102',
-                        'email' => $_POST['email'],
+                        'id' => $userInfos->PSA_ID,
+                        'email' => $userInfos->PSE_EMAILPROF,
+                        'nom' => $userInfos->PSA_LIBELLE,
+                        'prenom' => $userInfos->PSA_PRENOM,
                         'roles' => ['ROLE']
                     ]);
                     $user->setSession();

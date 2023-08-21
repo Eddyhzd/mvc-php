@@ -20,6 +20,7 @@ class CompteRenduModel extends Model
     public function __construct()
     {
         $this->table = 'RH_CR_MOIS';
+        $this->base = 'ESI';
     }
 
     public function findAllByDate(string $date){
