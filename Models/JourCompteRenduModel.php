@@ -27,7 +27,7 @@ class JourCompteRenduModel extends Model
         return $this->requete("SELECT * FROM {$this->table} WHERE DATE_JOUR = ?", [$date])->fetch();
     }
 
-    public function findByMounthAndSalarie(string $dateDebut, string $dateFin, int $id_salarie){
+    public function findByMonthAndSalarie(string $dateDebut, string $dateFin, int $id_salarie){
         return $this->requete("SELECT * FROM {$this->table} WHERE DATE_JOUR BETWEEN ? AND ? AND ID_SALARIE = ?", [$dateDebut, $dateFin, $id_salarie])->fetchAll();
     }
 
@@ -42,7 +42,7 @@ class JourCompteRenduModel extends Model
         // On boucle pour éclater le tableau
         foreach ($this as $champ => $valeur) {
             // on retire les valeurs null et les champs qui ne doivent pas être modifiés 
-            if ($valeur !== null && !in_array($champ, ['db', 'table', 'id', 'id_salarie', 'date_jour'])) {
+            if ($valeur !== null && !in_array($champ, ['db', 'table', 'id', 'base', 'id_salarie', 'date_jour'])) {
                 $champs[] = strtoupper($champ) ." = ?";
                 $valeurs[] = $valeur;
             }

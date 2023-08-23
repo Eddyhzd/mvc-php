@@ -197,4 +197,27 @@ class Form
 
         return $this;
     }
+
+    /**
+     * Ajoute un bouton retout
+     * @param string $texte 
+     * @param array $attributs 
+     * @return Form
+     */
+    public function ajoutRetour(string $texte, string $dest, array $attributs = []):self
+    {
+        // On ouvre le bouton
+        $this->formCode .= '<a ';
+
+        // On ajoute les attributs
+        $this->formCode .= $attributs ? $this->ajoutAttributs($attributs) : '';
+
+        // On ajoute la destination du retour
+        $this->formCode .= " href='$dest'";
+
+        // On ajoute le texte et on ferme
+        $this->formCode .= ">$texte</a>";
+
+        return $this;
+    }
 }

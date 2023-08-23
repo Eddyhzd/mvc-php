@@ -31,6 +31,10 @@ class CompteRenduModel extends Model
         return $this->requete("SELECT * FROM RH_CR_MOIS WHERE DATE_CR = ? AND ID_SALARIE = ?", [$date, $id_salarie])->fetch();
     }
 
+    public function findByDateAndSalaries(string $date, array $id_salaries){
+        return $this->requete("SELECT * FROM RH_CR_MOIS WHERE DATE_CR = ? AND ID_SALARIE IN (?)", [$date, ...$id_salaries])->fetchAll();
+    }
+
     public function update(){
         $champs = [];
         $valeurs = [];
@@ -38,7 +42,7 @@ class CompteRenduModel extends Model
         // On boucle pour éclater le tableau
         foreach ($this as $champ => $valeur) {
             // on retire les valeurs null et les champs qui ne doivent pas être modifiés 
-            if ($valeur !== null && !in_array($champ, ['db', 'table', 'id', 'id_salarie', 'date_cr'])) {
+            if ($valeur !== null && !in_array($champ, ['db', 'table', 'id', 'base', 'id_salarie', 'date_cr'])) {
                 $champs[] = strtoupper($champ) ." = ?";
                 $valeurs[] = $valeur;
             }

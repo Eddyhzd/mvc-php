@@ -173,6 +173,7 @@ class JourCompteRenduController extends Controller
                     'step' => 0.01
                 ])
                 ->ajoutBouton('Modifier', ['class' => 'btn btn-primary'])
+                ->ajoutRetour('Retour', '/compteRendu/affiche/' .$id_salarie. '/' . $date , ['class' => 'btn btn-outline-danger pull-right'])
                 ->finForm()
             ;
 

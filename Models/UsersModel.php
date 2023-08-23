@@ -8,6 +8,7 @@ class UsersModel extends Model
     protected $nom;
     protected $prenom;
     protected $roles;
+    protected $subs;
 
     public function __construct()
     {
@@ -76,6 +77,68 @@ class UsersModel extends Model
     }
 
     /**
+     * Récupérer les users subordonnés à un autre user par son id.
+     * @param string $id_salarie
+     * @return mixed 
+     */
+    public function findSubById(string $id_salarie){
+        return $this->requete(
+            "WITH TEMP AS (
+                SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID_SALARIE
+                    ,sal.PSA_LIBELLE AS NOM
+                    ,sal.PSA_PRENOM AS PRENOM
+                    ,[PFH_REFERENTRH]
+                FROM [EILYPS].[dbo].[PGAFFECTROLERH] 
+                inner JOIN SALARIES sal ON PFH_SALARIE = sal.PSA_SALARIE
+                WHERE (YEAR(sal.PSA_DATESORTIE) = 1900 OR sal.PSA_DATESORTIE >= GETDATE())
+                UNION
+                SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID_SALARIE
+                    ,sal.PSA_LIBELLE AS NOM
+                    ,sal.PSA_PRENOM AS PRENOM
+                    ,[PFH_REFERENTRH]
+                FROM [TECMATEL].[dbo].[PGAFFECTROLERH] 
+                inner JOIN [TECMATEL].[dbo].SALARIES sal ON PFH_SALARIE = sal.PSA_SALARIE
+                WHERE (YEAR(sal.PSA_DATESORTIE) = 1900 OR sal.PSA_DATESORTIE >= GETDATE())
+            )
+            SELECT DISTINCT ID_SALARIE, NOM, PRENOM FROM TEMP
+            WHERE RIGHT(PFH_REFERENTRH, 6) = ?"
+            , [$id_salarie])->fetchAll()
+        ;
+    }
+
+    /**
+     * Récupérer les users pour un mois donnée
+     * @param string $id
+     * @return mixed 
+     */
+    public function allByDate(string $date){
+        return $this->requete(
+            "WITH TEMP AS (
+                SELECT DISTINCT RIGHT(PSA_SALARIE, 6) AS ID_SALARIE
+                    ,sal.PSA_LIBELLE AS NOM
+                    ,sal.PSA_PRENOM AS PRENOM
+                    ,sal.PSA_DATEENTREE
+                    ,sal.PSA_DATESORTIE
+                FROM SALARIES sal
+                UNION
+                SELECT DISTINCT RIGHT(PSA_SALARIE, 6) AS ID_SALARIE
+                    ,sal.PSA_LIBELLE AS NOM
+                    ,sal.PSA_PRENOM AS PRENOM
+                    ,sal.PSA_DATEENTREE
+                    ,sal.PSA_DATESORTIE
+                FROM [TECMATEL].[dbo].SALARIES sal
+            )
+            SELECT DISTINCT ID_SALARIE, NOM, PRENOM FROM TEMP
+            WHERE YEAR(PSA_DATESORTIE) = 1900
+            OR (MONTH(PSA_DATEENTREE) <= MONTH(?) 
+            AND MONTH(PSA_DATESORTIE) >= MONTH(?) 
+            AND YEAR(PSA_DATEENTREE) <= YEAR(?) 
+            AND YEAR(PSA_DATESORTIE) >= YEAR(?))"
+            , [$date, $date, $date, $date])->fetchAll()
+        ;
+    }
+
+    /**
      * Crée la session de l'utilisateur
      * @return void 
      */
@@ -85,7 +148,8 @@ class UsersModel extends Model
             'email' => $this->email,
             'prenom' => $this->prenom,
             'nom' => $this->nom,
-            'roles' => $this->roles
+            'roles' => $this->roles,
+            'subs' => $this->subs
         ];
     }
 
@@ -165,11 +229,7 @@ class UsersModel extends Model
      * Get the value of roles
      */ 
     public function getRoles():array{
-        $roles = $this->roles;
-
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return array_unique($this->roles);
     }
 
     /**
@@ -179,6 +239,24 @@ class UsersModel extends Model
      */ 
     public function setRoles($roles):self{
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of subs
+     */ 
+    public function getSubs():array{
+        return array_unique($this->subs);
+    }
+
+    /**
+     * Set the value of subs
+     *
+     * @return  self
+     */ 
+    public function setSubs($subs):self{
+        $this->subs = $subs;
 
         return $this;
     }

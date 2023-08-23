@@ -1,16 +1,23 @@
 <?php
 namespace App\Controllers;
 
-use App\Models\AnnoncesModel;
-use PDOException;
+use App\Models\CompteRenduModel;
+use App\Models\UsersModel;
 
-class AdminController extends Controller
+class ManagerController extends Controller
 {
     public function index()
     {
-        // On vérifie si on est admin
-        if($this->isAdmin()){
-            $this->render('admin/index', [], 'admin');
+        // On vérifie si on est manager
+        if($this->isManager()){
+            $compteRenduModel = new CompteRenduModel;
+            $usersModel = new UsersModel;
+
+            // Récupération des comptes rendus 
+            $crs = $compteRenduModel->findByDateAndSalaries(date('Y-m-01'), array_column($_SESSION['user']['subs'], 'ID_SALARIE'));
+
+            $this->render('test', ['test' => $crs]);
+            //$this->render('manager/index', ['crs' => $crs]);
         }
     }
 
@@ -20,8 +27,9 @@ class AdminController extends Controller
      */
     public function annonces()
     {
-        if($this->isAdmin()){
-            $annoncesModel = new AnnoncesModel;
+        if($this->isManager()){
+            $compteRenduModel = new CompteRenduModel;
+            $usersModel = new UsersModel;
 
             $annonces = $annoncesModel->findAll();
 
@@ -36,7 +44,7 @@ class AdminController extends Controller
      */
     public function supprimeAnnonce(int $id)
     {
-        if($this->isAdmin()){
+        if($this->isManager()){
             $annonce = new AnnoncesModel;
 
             $annonce->delete($id);
@@ -52,7 +60,7 @@ class AdminController extends Controller
      */
     public function activeAnnonce(int $id)
     {
-        if($this->isAdmin()){
+        if($this->isManager()){
             $annoncesModel = new AnnoncesModel;
 
             $annonceArray = $annoncesModel->find($id);
@@ -75,17 +83,17 @@ class AdminController extends Controller
 
 
     /**
-     * Vérifie si on est admin
+     * Vérifie si on est manager
      * @return true 
      */
-    private function isAdmin()
+    private function isManager()
     {
-        // On vérifie si on est connecté et si "ROLE_ADMIN" est dans nos rôles
-        if(isset($_SESSION['user']) && in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
-            // On est admin
+        // On vérifie si on est connecté et si "MANAGER" est dans nos rôles
+        if(isset($_SESSION['user']) && in_array('MANAGER', $_SESSION['user']['roles'])){
+            // On est manager
             return true;
         }else{
-            // On n'est pas admin
+            // On n'est pas manager
             $_SESSION['erreur'] = "Vous n'avez pas accès à cette zone";
             header('Location: /compteRendu');
             exit;

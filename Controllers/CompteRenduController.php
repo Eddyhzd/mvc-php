@@ -22,7 +22,7 @@ class CompteRenduController extends Controller{
             $cr = $compteRenduModel->findByDateAndSalarie(date('Y-m-01'), $_SESSION['user']['id']);
 
             // On va chercher les jours du compte rendu courant de l'utilisateur 
-            $jcr = $jourCompteRenduModel->findByMounthAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
+            $jcr = $jourCompteRenduModel->findByMonthAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
 
             $prenom = ucfirst($_SESSION['user']['prenom']);
             $nom = strtoupper($_SESSION['user']['nom']);
@@ -55,7 +55,7 @@ class CompteRenduController extends Controller{
             $cr = $compteRenduModel->findByDateAndSalarie(date_format(new \Datetime($date), 'Y-m-01'), $id_salarie);
 
             // On va chercher les jours du compte rendu de l'utilisateur 
-            $jcr = $jourCompteRenduModel->findByMounthAndSalarie(
+            $jcr = $jourCompteRenduModel->findByMonthAndSalarie(
                 date_format(new \Datetime($date), 'Y-m-01'),
                 date_format(new \Datetime($date), 'Y-m-t'),
                 $id_salarie
@@ -120,7 +120,7 @@ class CompteRenduController extends Controller{
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
                 if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
-                    $_SESSION['erreur'] = "Vous n'êtes pas autorisé à modifier ce compte rendu";
+                    $_SESSION['erreur'] = "Vous n'êtes pas autorisé à modifier ces informations";
                     header('Location: /compteRendu');
                     exit;
                 }
@@ -191,11 +191,12 @@ class CompteRenduController extends Controller{
                     'step' => 0.01
                 ])
                 ->ajoutBouton('Modifier', ['class' => 'btn btn-primary'])
+                ->ajoutRetour('Retour', '/compteRendu/affiche/' .$id_salarie. '/' . $date , ['class' => 'btn btn-outline-danger pull-right'])
                 ->finForm()
             ;
 
             // On génère la vue
-            $this->render('compteRendu/modifier', ['form' => $form->create()]);
+            $this->render('compteRendu/modifier', ['form' => $form->create(), 'date' => $date, 'id_salarie' => $id_salarie]);
         }else{
             // L'utilisateur n'est pas connecté
             $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";

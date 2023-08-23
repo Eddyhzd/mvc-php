@@ -35,13 +35,22 @@ class UsersController extends Controller
                 if($authenticated){
                     // Le mot de passe est bon
                     $userInfos = $usersModel->findOneByEmail($email);
+
+                    // Role de manager
+                    $roles = ['USER'];
+                    $subs = $usersModel->findSubById($userInfos->PSA_ID);
+                    if ($subs){
+                        array_push($roles, 'MANAGER');
+                    }
+
                     // On crée la session
                     $user = $usersModel->hydrate([
                         'id' => $userInfos->PSA_ID,
                         'email' => $userInfos->PSE_EMAILPROF,
                         'nom' => $userInfos->PSA_LIBELLE,
                         'prenom' => $userInfos->PSA_PRENOM,
-                        'roles' => ['ROLE']
+                        'roles' => $roles,
+                        'subs' => $subs
                     ]);
                     $user->setSession();
                     header('Location: /compteRendu');
@@ -71,7 +80,7 @@ class UsersController extends Controller
             ->ajoutBouton('Me connecter', ['class' => 'btn btn-primary'])
             ->finForm();
 
-        $this->render('users/login', ['loginForm' => $form->create()]);
+        $this->render('users/login', ['loginForm' => $form->create()], 'home');
        
     }
 
