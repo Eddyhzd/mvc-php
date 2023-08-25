@@ -116,7 +116,7 @@ class UsersModel extends Model
      * @param string $id
      * @return mixed 
      */
-    public function allByDate(string $date){
+    public function findAllByDate(string $date){
         return $this->requete(
             "WITH TEMP AS (
                 SELECT DISTINCT RIGHT(PSA_SALARIE, 6) AS ID_SALARIE

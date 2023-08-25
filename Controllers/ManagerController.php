@@ -23,7 +23,6 @@ class ManagerController extends Controller
 
     /**
      * Cette méthode affichera une page du compte rendu correspondant aux paramètres
-     * @param int $id_salarie
      * @param string $date
      * @return void 
      */
@@ -40,67 +39,6 @@ class ManagerController extends Controller
             $this->render('manager/index', ['crs' => $crs, 'users' => $users, 'date' => $date]);
         }
     }
-
-    /**
-     * Affiche la liste des annonces sous forme de tableau
-     * @return void 
-     */
-    public function annonces()
-    {
-        if($this->isManager()){
-            $compteRenduModel = new CompteRenduModel;
-            $usersModel = new UsersModel;
-
-            $annonces = $annoncesModel->findAll();
-
-            $this->render('admin/annonces', compact('annonces'), 'admin');
-        }
-    }
-
-    /**
-     * Supprime une annonce si on est admin
-     * @param int $id 
-     * @return void 
-     */
-    public function supprimeAnnonce(int $id)
-    {
-        if($this->isManager()){
-            $annonce = new AnnoncesModel;
-
-            $annonce->delete($id);
-
-            header('Location: /'.$_SERVER['HTTP_REFERER']);
-        }
-    }
-
-    /**
-     * Active ou désactive une annonce
-     * @param int $id 
-     * @return void 
-     */
-    public function activeAnnonce(int $id)
-    {
-        if($this->isManager()){
-            $annoncesModel = new AnnoncesModel;
-
-            $annonceArray = $annoncesModel->find($id);
-
-            if($annonceArray){
-                $annonce = $annoncesModel->hydrate($annonceArray);
-
-                // if($annonce->getActif()){
-                //     $annonce->setActif(0);
-                // }else{
-                //     $annonce->setActif(1);
-                // }
-
-                $annonce->setActif($annonce->getActif() ? 0 : 1);
-
-                $annonce->update();
-            }
-        }
-    }
-
 
     /**
      * Vérifie si on est manager

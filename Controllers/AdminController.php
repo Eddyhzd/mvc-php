@@ -1,16 +1,43 @@
 <?php
 namespace App\Controllers;
 
+use App\Models\CompteRenduModel;
+use App\Models\UsersModel;
 use App\Models\AnnoncesModel;
 use PDOException;
 
-class AdminController extends Controller
-{
-    public function index()
-    {
+class AdminController extends Controller{
+
+    public function index(){
         // On vérifie si on est admin
         if($this->isAdmin()){
-            $this->render('admin/index', [], 'admin');
+            $compteRenduModel = new CompteRenduModel;
+            $usersModel = new UsersModel;
+
+            // Récupération des comptes rendus 
+            $crs = $compteRenduModel->findAllByDate(date('Y-m-01'));
+            $users = $usersModel->findAllByDate(date('Y-m-d'));
+
+            $this->render('admin/index', ['crs' => $crs, 'users' => $users, 'date' => date('Y-m')]);
+        }
+    }
+
+    /**
+     * Cette méthode affichera une page du compte rendu correspondant aux paramètres
+     * @param string $date
+     * @return void 
+     */
+    public function affiche(string $date){
+        // On vérifie si on est admin
+        if($this->isAdmin()){
+            $compteRenduModel = new CompteRenduModel;
+            $usersModel = new UsersModel;
+
+            // Récupération des comptes rendus 
+            $crs = $compteRenduModel->findAllByDate(date_format(new \Datetime($date), 'Y-m-01'), array_column($_SESSION['user']['subs'], 'ID_SALARIE'));
+            $users = $usersModel->findAllByDate($date, $_SESSION['user']['id']);
+
+            $this->render('admin/index', ['crs' => $crs, 'users' => $users, 'date' => $date]);
         }
     }
 
@@ -81,7 +108,7 @@ class AdminController extends Controller
     private function isAdmin()
     {
         // On vérifie si on est connecté et si "ROLE_ADMIN" est dans nos rôles
-        if(isset($_SESSION['user']) && in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
+        if(isset($_SESSION['user']) && in_array('ADMIN', $_SESSION['user']['roles'])){
             // On est admin
             return true;
         }else{

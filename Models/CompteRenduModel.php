@@ -24,7 +24,12 @@ class CompteRenduModel extends Model
     }
 
     public function findAllByDate(string $date){
-        return $this->requete("SELECT * FROM RH_CR_MOIS WHERE DATE_CR = ?", [$date])->fetch();
+        $res = $this->requete("SELECT * FROM RH_CR_MOIS WHERE DATE_CR = ?", [$date])->fetchAll();
+        $crs = [];
+        foreach ($res as $row) {
+            $crs[$row->ID_SALARIE] = $row;
+        }
+        return $crs;
     }
 
     public function findByDateAndSalarie(string $date, int $id_salarie){

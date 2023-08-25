@@ -1,4 +1,4 @@
-<h1>Liste des salariés</h1>
+<h1>Manager: liste des salariés</h1>
 <nav>
     <ul class="pagination justify-content-center">
       <li class="page-item">

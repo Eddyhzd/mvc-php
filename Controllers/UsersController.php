@@ -6,6 +6,15 @@ use App\Models\UsersModel;
 
 class UsersController extends Controller
 {
+    private static array $ADMINS = [
+        'fanny.lejean@eilyps.fr',
+        'valerie.cochet@eilyps.fr',
+        'chrystele.barbier@eilyps.fr',
+        'a5sys',
+        'bill.gates@eilyps.fr',
+        'eddy.hazard@eilyps.fr'
+    ];
+
     /**
      * Connexion des utilisateurs
      * @return void 
@@ -36,11 +45,17 @@ class UsersController extends Controller
                     // Le mot de passe est bon
                     $userInfos = $usersModel->findOneByEmail($email);
 
-                    // Role de manager
                     $roles = ['USER'];
+
+                    // Role de manager
                     $subs = $usersModel->findSubByDate(date('Y-m-d'), $userInfos->PSA_ID);
                     if ($subs){
                         array_push($roles, 'MANAGER');
+                    }
+
+                    // Role de Admin
+                    if (in_array($email, self::$ADMINS)){
+                        array_push($roles, 'ADMIN');
                     }
 
                     // On crée la session
