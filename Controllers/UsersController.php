@@ -38,7 +38,7 @@ class UsersController extends Controller
 
                     // Role de manager
                     $roles = ['USER'];
-                    $subs = $usersModel->findSubById($userInfos->PSA_ID);
+                    $subs = $usersModel->findSubByDate(date('Y-m-d'), $userInfos->PSA_ID);
                     if ($subs){
                         array_push($roles, 'MANAGER');
                     }

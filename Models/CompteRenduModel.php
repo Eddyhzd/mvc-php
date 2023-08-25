@@ -32,7 +32,12 @@ class CompteRenduModel extends Model
     }
 
     public function findByDateAndSalaries(string $date, array $id_salaries){
-        return $this->requete("SELECT * FROM RH_CR_MOIS WHERE DATE_CR = ? AND ID_SALARIE IN (?)", [$date, ...$id_salaries])->fetchAll();
+        $res = $this->requete("SELECT * FROM RH_CR_MOIS WHERE DATE_CR = ? AND ID_SALARIE IN (" . implode(',',$id_salaries) . ")", [$date])->fetchAll();
+        $crs = [];
+        foreach ($res as $row) {
+            $crs[$row->ID_SALARIE] = $row;
+        }
+        return $crs;
     }
 
     public function update(){

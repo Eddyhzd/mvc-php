@@ -15,9 +15,29 @@ class ManagerController extends Controller
 
             // Récupération des comptes rendus 
             $crs = $compteRenduModel->findByDateAndSalaries(date('Y-m-01'), array_column($_SESSION['user']['subs'], 'ID_SALARIE'));
+            $users = $usersModel->findSubByDate(date('Y-m-d'), $_SESSION['user']['id']);
 
-            $this->render('test', ['test' => $crs]);
-            //$this->render('manager/index', ['crs' => $crs]);
+            $this->render('manager/index', ['crs' => $crs, 'users' => $users, 'date' => date('Y-m')]);
+        }
+    }
+
+    /**
+     * Cette méthode affichera une page du compte rendu correspondant aux paramètres
+     * @param int $id_salarie
+     * @param string $date
+     * @return void 
+     */
+    public function affiche(string $date){
+        // On vérifie si on est manager
+        if($this->isManager()){
+            $compteRenduModel = new CompteRenduModel;
+            $usersModel = new UsersModel;
+
+            // Récupération des comptes rendus 
+            $crs = $compteRenduModel->findByDateAndSalaries(date_format(new \Datetime($date), 'Y-m-01'), array_column($_SESSION['user']['subs'], 'ID_SALARIE'));
+            $users = $usersModel->findSubByDate($date, $_SESSION['user']['id']);
+
+            $this->render('manager/index', ['crs' => $crs, 'users' => $users, 'date' => $date]);
         }
     }
 

@@ -1,4 +1,19 @@
 <h1>Liste des salariés</h1>
+<nav>
+    <ul class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="/manager/affiche/<?= date("Y-m-01", strtotime('-1 month', strtotime($date))) ?>" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item page-link"><?= date_format(new \Datetime($date), 'Y-m') ?></li>
+      <li class="page-item">
+        <a class="page-link" href="/manager/affiche/<?= date("Y-m-01", strtotime('+1 month', strtotime($date))) ?>" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+</nav>
 <table class='container'>
     <thead>
         <tr class='row'>
@@ -14,18 +29,34 @@
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($crs as $key => $cr) : ?>
-        <tr class='row'>
-            <td class='col'><?= array_search($cr->ID_SALARIE, array_column($_SESSION['user']['subs'], 'ID_SALARIE')) ?></td>
-            <td class='col'><?= $_SESSION['user']['subs'][array_search($cr->ID_SALARIE, array_column($_SESSION['user']['subs'], 'ID_SALARIE'))]['PRENOM'] ?></td>
-            <td class='col'>A Remplir</td>
-            <td class='col'>0</td>
-            <td class='col'></td>
-            <td class='col'><a href="#">Relancer</a></td>
-            <td class='col'><a href="#">Voir PDF</a></td>
-            <td class='col'><a href="#">Modifier</a></td>
-            <td class='col'><a href="#">Valider</a></td>
-        </tr>
+        <?php foreach ($users as $key => $user) :
+            if (array_key_exists($user->ID_SALARIE,$crs)):
+                $cr = $crs[$user->ID_SALARIE];
+        ?>
+            <tr class='row'>
+                <td class='col'><?= $user->NOM ?></td>
+                <td class='col'><?= $user->PRENOM ?></td>
+                <td class='col'><?= $cr->STATUT_CR ?></td>
+                <td class='col'><?= $cr->NB_TICKET ?></td>
+                <td class='col'></td>
+                <td class='col'><a href="#">Relancer</a></td>
+                <td class='col'><a href="#">Voir PDF</a></td>
+                <td class='col'><a href="#">Modifier</a></td>
+                <td class='col'><a href="#">Valider</a></td>
+            </tr>
+            <?php else :?>
+            <tr class='row'>
+                <td class='col'><?= $user->NOM ?></td>
+                <td class='col'><?= $user->PRENOM ?></td>
+                <td class='col'>Non entamé</td>
+                <td class='col'></td>
+                <td class='col'></td>
+                <td class='col'><a href="#">Relancer</a></td>
+                <td class='col'><a href="#">Voir PDF</a></td>
+                <td class='col'><a href="#">Modifier</a></td>
+                <td class='col'><a href="#">Valider</a></td>
+            </tr>
+            <?php endif;?>
         <?php endforeach;?>
     </tbody>
 </table>

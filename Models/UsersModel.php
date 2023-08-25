@@ -78,36 +78,41 @@ class UsersModel extends Model
 
     /**
      * Récupérer les users subordonnés à un autre user par son id.
+     * @param string $date
      * @param string $id_salarie
      * @return mixed 
      */
-    public function findSubById(string $id_salarie){
+    public function findSubByDate(string $date, string $id_salarie){
         return $this->requete(
             "WITH TEMP AS (
                 SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID_SALARIE
                     ,sal.PSA_LIBELLE AS NOM
                     ,sal.PSA_PRENOM AS PRENOM
                     ,[PFH_REFERENTRH]
+                    ,sal.PSA_DATESORTIE
+                    ,sal.PSA_DATEENTREE
                 FROM [EILYPS].[dbo].[PGAFFECTROLERH] 
                 inner JOIN SALARIES sal ON PFH_SALARIE = sal.PSA_SALARIE
-                WHERE (YEAR(sal.PSA_DATESORTIE) = 1900 OR sal.PSA_DATESORTIE >= GETDATE())
                 UNION
                 SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID_SALARIE
                     ,sal.PSA_LIBELLE AS NOM
                     ,sal.PSA_PRENOM AS PRENOM
                     ,[PFH_REFERENTRH]
+                    ,sal.PSA_DATESORTIE
+                    ,sal.PSA_DATEENTREE
                 FROM [TECMATEL].[dbo].[PGAFFECTROLERH] 
                 inner JOIN [TECMATEL].[dbo].SALARIES sal ON PFH_SALARIE = sal.PSA_SALARIE
-                WHERE (YEAR(sal.PSA_DATESORTIE) = 1900 OR sal.PSA_DATESORTIE >= GETDATE())
             )
             SELECT DISTINCT ID_SALARIE, NOM, PRENOM FROM TEMP
-            WHERE RIGHT(PFH_REFERENTRH, 6) = ?"
-            , [$id_salarie])->fetchAll()
+            WHERE RIGHT(PFH_REFERENTRH, 6) = ?
+            AND (YEAR(PSA_DATESORTIE) = 1900
+            OR ? between EOMONTH(PSA_DATEENTREE, -1) and EOMONTH(PSA_DATESORTIE))"
+            , [$id_salarie, $date])->fetchAll()
         ;
     }
 
     /**
-     * Récupérer les users pour un mois donnée
+     * Récupérer les users pour un mois donné
      * @param string $id
      * @return mixed 
      */
@@ -130,11 +135,8 @@ class UsersModel extends Model
             )
             SELECT DISTINCT ID_SALARIE, NOM, PRENOM FROM TEMP
             WHERE YEAR(PSA_DATESORTIE) = 1900
-            OR (MONTH(PSA_DATEENTREE) <= MONTH(?) 
-            AND MONTH(PSA_DATESORTIE) >= MONTH(?) 
-            AND YEAR(PSA_DATEENTREE) <= YEAR(?) 
-            AND YEAR(PSA_DATESORTIE) >= YEAR(?))"
-            , [$date, $date, $date, $date])->fetchAll()
+            OR ? between EOMONTH(PSA_DATEENTREE, -1) and EOMONTH(PSA_DATESORTIE)"
+            , [$date])->fetchAll()
         ;
     }
 
