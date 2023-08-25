@@ -15,6 +15,16 @@
       </li>
     </ul>
   </nav>
+  <div class='text-center'>
+    <h3>
+      Statut du compte rendu:
+      <small class="text-muted"><?= $cr->STATUT_CR ?></small>
+    </h3>
+    <h3>
+      Nombre de ticket:
+      <small class="text-muted"><?= $cr->NB_TICKET ? $cr->NB_TICKET : 0 ?><i class="fa fa-credit-card" aria-hidden="true"></i></small>
+    </h3>
+  </div>
   <div class="row">
     <span class="col border border-dark">Lundi</span>
     <span class="col border border-dark">Mardi</span>
@@ -47,3 +57,4 @@
   </div>
 </div>
 <a class="btn btn-light" href="/compteRendu/modifierVehicule/<?= $jour->ID_SALARIE ?>/<?= $cr->DATE_CR ?>">Infos Véhicule<i class="fa fa-car" aria-hidden="true"></i></a>
+<a class="btn btn-success text-center" href="/compteRendu/envoyer/<?= $jour->ID_SALARIE ?>/<?= $cr->DATE_CR ?>">Envoyer<i class="fa fa-paper-plane"></i></a>
