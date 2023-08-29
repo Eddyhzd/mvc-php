@@ -169,7 +169,7 @@ class CompteRenduController extends Controller{
                 ->ajoutInput('number', 'km_debut', [
                     'id' => 'km_debut',
                     'class' => 'form-control',
-                    'value' => $cr->KM_DEBUT,
+                    'value' => round($cr->KM_DEBUT),
                     'min' => 0,
                     'max' => 1000000,
                     'step' => 1
@@ -178,7 +178,7 @@ class CompteRenduController extends Controller{
                 ->ajoutInput('number', 'km_fin', [
                     'id' => 'km_fin',
                     'class' => 'form-control',
-                    'value' => $cr->KM_FIN,
+                    'value' => round($cr->KM_FIN),
                     'min' => 0,
                     'max' => 1000000,
                     'step' => 1

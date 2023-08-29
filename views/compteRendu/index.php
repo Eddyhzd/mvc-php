@@ -48,7 +48,11 @@
             <input type="hidden" id="ticket" name="ticket" value="<?= $jour->TICKET == 0 ? 1 : 0 ?>" />
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
               <button class="btn btn-sm btn-<?= $jour->TICKET == 0 ? "outline-dark" : "success" ?>" type="submit" name="date" value="<?= $jour->DATE_JOUR ?>" ><?= $jour->TICKET == 0 ? "+ " : "- " ?><i class="fa fa-credit-card" aria-hidden="true"></i></button>
-              <a class="btn btn-sm btn-<?= trim($jour->NOTES_JOUR) == '' ? "outline-dark" : "outline-info" ?>" href="/jourCompteRendu/modifierJour/<?= $jour->ID_SALARIE ?>/<?= $jour->DATE_JOUR ?>"><?= trim($jour->NOTES_JOUR) == '' ? "+ " : "<i class=\"fa fa-eye\" aria-hidden=\"true\"></i>" ?><i class="fa fa-file-text-o" aria-hidden="true"></i></a>
+              <?php if (trim($jour->NOTES_JOUR) == '' && empty(round($jour->FRAIS_JOUR, 2)) && empty(round($jour->KM_VEHICULE_PRO, 2))  && empty(round($jour->KM_VEHICULE_PERSO, 2))): ?>
+                <a class="btn btn-sm btn-outline-dark" href="/jourCompteRendu/modifierJour/<?= $jour->ID_SALARIE ?>/<?= $jour->DATE_JOUR ?>">+<i class="fa fa-file-text-o" aria-hidden="true"></i></a>
+              <?php else: ?>
+                <a class="btn btn-sm btn-outline-info" href="/jourCompteRendu/modifierJour/<?= $jour->ID_SALARIE ?>/<?= $jour->DATE_JOUR ?>"><i class="fa fa-eye" aria-hidden="true"></i><i class="fa fa-file-text-o" aria-hidden="true"></i></a>
+              <?php endif; ?>
             </div>
           </form>
         </div>

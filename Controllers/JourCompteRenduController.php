@@ -149,7 +149,7 @@ class JourCompteRenduController extends Controller
                 ->ajoutInput('number', 'frais', [
                     'id' => 'frais',
                     'class' => 'form-control',
-                    'value' => $jour->FRAIS_JOUR,
+                    'value' => round($jour->FRAIS_JOUR, 2),
                     'min' => 0,
                     'max' => 100000,
                     'step' => 0.01
@@ -158,19 +158,19 @@ class JourCompteRenduController extends Controller
                 ->ajoutInput('number', 'km_perso', [
                     'id' => 'km_perso',
                     'class' => 'form-control',
-                    'value' => $jour->KM_VEHICULE_PERSO,
+                    'value' => round($jour->KM_VEHICULE_PERSO),
                     'min' => 0,
                     'max' => 100000,
-                    'step' => 0.01
+                    'step' => 1
                 ])
                 ->ajoutLabelFor('km_pro', 'Km Pro :')
                 ->ajoutInput('number', 'km_pro', [
                     'id' => 'km_pro',
                     'class' => 'form-control',
-                    'value' => $jour->KM_VEHICULE_PRO,
+                    'value' => round($jour->KM_VEHICULE_PRO),
                     'min' => 0,
                     'max' => 100000,
-                    'step' => 0.01
+                    'step' => 1
                 ])
                 ->ajoutRetour('Retour', '/compteRendu/affiche/' .$id_salarie. '/' . $date , ['class' => 'btn btn-outline-danger'])
                 ->ajoutBouton('Modifier', ['class' => 'btn btn-primary pull-right'])
