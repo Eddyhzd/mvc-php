@@ -172,8 +172,8 @@ class JourCompteRenduController extends Controller
                     'max' => 100000,
                     'step' => 0.01
                 ])
-                ->ajoutBouton('Modifier', ['class' => 'btn btn-primary'])
-                ->ajoutRetour('Retour', '/compteRendu/affiche/' .$id_salarie. '/' . $date , ['class' => 'btn btn-outline-danger pull-right'])
+                ->ajoutRetour('Retour', '/compteRendu/affiche/' .$id_salarie. '/' . $date , ['class' => 'btn btn-outline-danger'])
+                ->ajoutBouton('Modifier', ['class' => 'btn btn-primary pull-right'])
                 ->finForm()
             ;
 

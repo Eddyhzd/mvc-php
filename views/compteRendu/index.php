@@ -1,7 +1,7 @@
 <h1>Compte rendu de <?= $prenom . ' ' . $nom ?></h1>
 <div class="calendar">
   <nav>
-    <ul class="pagination justify-content-center">
+    <ul class="pagination pagination-lg justify-content-center">
       <li class="page-item">
         <a class="page-link" href="/compteRendu/affiche/<?= $cr->ID_SALARIE ?>/<?= date("Y-m-01", strtotime ( '-1 month' , strtotime ( $cr->DATE_CR ) )) ?>" aria-label="Previous">
           <span aria-hidden="true">&laquo;</span>
@@ -34,9 +34,13 @@
     <span class="col border border-dark">Samedi</span>
     <span class="col border border-dark">Dimanche</span>
   </div>
-  <div class="row justify-content-end">
-    <?php foreach($jcr as $jour): ?>
+  <div class="row">
+    <?php for ($i=1; $i < date_format(new \Datetime($jcr[0]->DATE_JOUR), 'N'); $i++): ?>
       <div class="col card">
+      </div>
+    <?php endfor; ?>
+    <?php foreach($jcr as $jour): ?>
+      <div class="col card <?= date_format(new \Datetime($jour->DATE_JOUR), 'N') == 6 || date_format(new \Datetime($jour->DATE_JOUR), 'N') == 7 ? 'bg-light' : 'bg-white' ?>">
         <div class="card-body">
           <h3 class="card-title"><?= date_format(new \Datetime($jour->DATE_JOUR), 'j') ?></h3>
           <form method="post" action="/jourCompteRendu/modifierTicket">
@@ -49,12 +53,18 @@
           </form>
         </div>
       </div>
-      <?php if (date_format(new \Datetime($jour->DATE_JOUR), 'w') == 0) : ?>
+      <?php if (date_format(new \Datetime($jour->DATE_JOUR), 'N') == 7) : ?>
         </div>
-        <div class="row justify-content-start">
+        <div class="row">
       <?php endif; ?>
     <?php endforeach; ?>
+    <?php for ($i=date_format(new \Datetime(end($jcr)->DATE_JOUR), 'w'); $i < 7; $i++): ?>
+      <div class="col card">
+      </div>
+    <?php endfor; ?>
   </div>
 </div>
-<a class="btn btn-light" href="/compteRendu/modifierVehicule/<?= $jour->ID_SALARIE ?>/<?= $cr->DATE_CR ?>">Infos Véhicule<i class="fa fa-car" aria-hidden="true"></i></a>
-<a class="btn btn-success text-center" href="/compteRendu/envoyer/<?= $jour->ID_SALARIE ?>/<?= $cr->DATE_CR ?>">Envoyer<i class="fa fa-paper-plane"></i></a>
+<div class="d-flex justify-content-around">
+  <a class="btn btn-light" href="/compteRendu/modifierVehicule/<?= $jour->ID_SALARIE ?>/<?= $cr->DATE_CR ?>">Infos Véhicule<i class="fa fa-car" aria-hidden="true"></i></a>
+  <a class="btn btn-success" href="/compteRendu/envoyer/<?= $jour->ID_SALARIE ?>/<?= $cr->DATE_CR ?>">Envoyer<i class="fa fa-paper-plane"></i></a>
+</div>

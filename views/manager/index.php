@@ -1,6 +1,6 @@
 <h1>Manager: liste des salariés</h1>
 <nav>
-    <ul class="pagination justify-content-center">
+    <ul class="pagination pagination-lg justify-content-center">
       <li class="page-item">
         <a class="page-link" href="/manager/affiche/<?= date("Y-m-01", strtotime('-1 month', strtotime($date))) ?>" aria-label="Previous">
           <span aria-hidden="true">&laquo;</span>

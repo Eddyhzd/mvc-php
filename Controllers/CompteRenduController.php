@@ -171,7 +171,8 @@ class CompteRenduController extends Controller{
                     'class' => 'form-control',
                     'value' => $cr->KM_DEBUT,
                     'min' => 0,
-                    'max' => 1000000
+                    'max' => 1000000,
+                    'step' => 1
                 ])
                 ->ajoutLabelFor('km_fin', 'Kms Fin :')
                 ->ajoutInput('number', 'km_fin', [
@@ -179,7 +180,8 @@ class CompteRenduController extends Controller{
                     'class' => 'form-control',
                     'value' => $cr->KM_FIN,
                     'min' => 0,
-                    'max' => 1000000
+                    'max' => 1000000,
+                    'step' => 1
                 ])
                 ->ajoutLabelFor('qte_carburant', 'Quantité de carburant (L) :')
                 ->ajoutInput('number', 'qte_carburant', [
@@ -188,10 +190,10 @@ class CompteRenduController extends Controller{
                     'value' => $cr->QTE_CARBURANT,
                     'min' => 0,
                     'max' => 1000,
-                    'step' => 0.01
+                    'step' => 1
                 ])
-                ->ajoutBouton('Modifier', ['class' => 'btn btn-primary'])
-                ->ajoutRetour('Retour', '/compteRendu/affiche/' .$id_salarie. '/' . $date , ['class' => 'btn btn-outline-danger pull-right'])
+                ->ajoutRetour('Retour', '/compteRendu/affiche/' .$id_salarie. '/' . $date , ['class' => 'btn btn-outline-danger'])
+                ->ajoutBouton('Modifier', ['class' => 'btn btn-primary pull-right'])
                 ->finForm()
             ;
 
