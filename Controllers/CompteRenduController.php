@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Models\CompteRenduModel;
 use App\Models\JourCompteRenduModel;
+use App\Models\CongeModel;
 use App\Models\UsersModel;
 use App\Core\Form;
 
@@ -17,18 +18,33 @@ class CompteRenduController extends Controller{
             // On instancie le modèle correspondant au compte rendu et au jour pour les comptes rendu
             $compteRenduModel = new CompteRenduModel;
             $jourCompteRenduModel = new JourCompteRenduModel;
+            $congeModel = new CongeModel;
 
             // On va chercher le compte rendu courant de l'utilisateur 
             $cr = $compteRenduModel->findByDateAndSalarie(date('Y-m-01'), $_SESSION['user']['id']);
 
             // On va chercher les jours du compte rendu courant de l'utilisateur 
-            $jcr = $jourCompteRenduModel->findByMonthAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
+            $jourCompteRenduModelArray = $jourCompteRenduModel->findByMonthAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
+
+            $jours = [];
+            foreach ($jourCompteRenduModelArray as $key => $jourArray) {
+                $jour = (new JourCompteRenduModel)->hydrate($jourArray);
+                array_push($jours, $jour);
+            }
+
+            // On va chercher les conges associé au compte rendu
+            $conges = $congeModel->findByDateAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
+
+            if($conges){
+                // On merge les conges et les jours compte rendu
+                $jours = $jourCompteRenduModel->mergeConges($jours, $conges);
+            }
 
             $prenom = ucfirst($_SESSION['user']['prenom']);
             $nom = strtoupper($_SESSION['user']['nom']);
 
             // On génère la vue
-            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jcr'));
+            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jours', 'conges'));
         }else{
             // L'utilisateur n'est pas connecté
             $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
@@ -50,30 +66,10 @@ class CompteRenduController extends Controller{
             $compteRenduModel = new CompteRenduModel;
             $jourCompteRenduModel = new JourCompteRenduModel;
             $usersModel = new UsersModel;
+            $congeModel = new CongeModel;
 
             // On va chercher le compte rendu de l'utilisateur 
             $cr = $compteRenduModel->findByDateAndSalarie(date_format(new \Datetime($date), 'Y-m-01'), $id_salarie);
-
-            // On va chercher les jours du compte rendu de l'utilisateur 
-            $jcr = $jourCompteRenduModel->findByMonthAndSalarie(
-                date_format(new \Datetime($date), 'Y-m-01'),
-                date_format(new \Datetime($date), 'Y-m-t'),
-                $id_salarie
-            );
-
-            // On va chercher l'utilisateur 
-            $user = $usersModel->findOneById($id_salarie);
-
-            // Si le compte rendu n'existe pas, on retourne au compte rendu courant
-            if(!$cr || !$jcr || !$user){
-                http_response_code(404);
-                $_SESSION['erreur'] = "Le compte rendu choisi est introuvable";
-                header('Location: /compteRendu');
-                exit;
-            }
-
-            $prenom = ucfirst($user->PSA_PRENOM);
-            $nom = strtoupper($user->PSA_LIBELLE);
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
@@ -84,8 +80,47 @@ class CompteRenduController extends Controller{
                 }
             }
 
+            // On va chercher les jours du compte rendu de l'utilisateur 
+            $jourCompteRenduModelArray = $jourCompteRenduModel->findByMonthAndSalarie(
+                date_format(new \Datetime($date), 'Y-m-01'),
+                date_format(new \Datetime($date), 'Y-m-t'),
+                $id_salarie
+            );
+
+            $jours = [];
+            foreach ($jourCompteRenduModelArray as $key => $jourArray) {
+                $jour = (new JourCompteRenduModel)->hydrate($jourArray);
+                array_push($jours, $jour);
+            }
+
+            // On va chercher l'utilisateur 
+            $user = $usersModel->findOneById($id_salarie);
+
+            // Si le compte rendu n'existe pas, on retourne au compte rendu courant
+            if(!$cr || !$jours || !$user){
+                http_response_code(404);
+                $_SESSION['erreur'] = "Le compte rendu choisi est introuvable";
+                header('Location: /compteRendu');
+                exit;
+            }
+
+            // On va chercher les conges associé au compte rendu
+            $conges = $congeModel->findByDateAndSalarie(
+                date_format(new \Datetime($date), 'Y-m-01'),
+                date_format(new \Datetime($date), 'Y-m-t'),
+                $id_salarie
+            );
+
+            if($conges){
+                // On merge les conges et les jours compte rendu
+                $jours = $jourCompteRenduModel->mergeConges($jours, $conges);
+            }
+
+            $prenom = ucfirst($user->PSA_PRENOM);
+            $nom = strtoupper($user->PSA_LIBELLE);
+
             // On génère la vue
-            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jcr'));
+            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jours', 'conges'));
         }else{
             // L'utilisateur n'est pas connecté
             $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
