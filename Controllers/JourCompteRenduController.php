@@ -12,7 +12,7 @@ class JourCompteRenduController extends Controller
      */
     public function modifierTicket(){
         // On vérifie si l'utilisateur est connecté et accède via le formulaire
-        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id']) && $_SERVER['REQUEST_METHOD'] === 'POST'){
+        if($this->isLogin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
             // On va vérifier si le jour existe dans la base
             // On instancie notre modèle
             $jourCompteRenduModel = new JourCompteRenduModel;
@@ -64,11 +64,6 @@ class JourCompteRenduController extends Controller
             // On redirige
             header("Location: /{$chemin}/{$id_salarie}/{$date}");
             exit;
-        }else{
-            // L'utilisateur n'est pas connecté
-            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
-            header('Location: /users/login');
-            exit;
         }
     }
 
@@ -80,7 +75,7 @@ class JourCompteRenduController extends Controller
      */
     public function modifierJour(int $id_salarie, string $date){
         // On vérifie si l'utilisateur est connecté
-        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
+        if($this->isLogin()){
             // On va vérifier si le jour existe dans la base
             // On instancie notre modèle
             $jourCompteRenduModel = new JourCompteRenduModel;
@@ -188,11 +183,6 @@ class JourCompteRenduController extends Controller
             ;
 
             $this->render('jourCompteRendu/modifier', ['form' => $form->create()]);
-        }else{
-            // L'utilisateur n'est pas connecté
-            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
-            header('Location: /users/login');
-            exit;
         }
     }
 }

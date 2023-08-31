@@ -14,13 +14,8 @@ class CompteRenduController extends Controller{
      */
     public function index(){
         // On vérifie si l'utilisateur est connecté
-        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
+        if($this->isLogin()){
             $this->affiche($_SESSION['user']['id'], date('Y-m-01'));
-        }else{
-            // L'utilisateur n'est pas connecté
-            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
-            header('Location: /users/login');
-            exit;
         }
     }
 
@@ -32,7 +27,7 @@ class CompteRenduController extends Controller{
      */
     public function affiche(int $id_salarie, string $date){
         // On vérifie si l'utilisateur est connecté
-        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
+        if($this->isLogin()){
             // On instancie le modèle correspondant au compte rendu, au jour pour les comptes rendu et au user
             $compteRenduModel = new CompteRenduModel;
             $jourCompteRenduModel = new JourCompteRenduModel;
@@ -92,11 +87,6 @@ class CompteRenduController extends Controller{
 
             // On génère la vue
             $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jours', 'conges', 'chemin'));
-        }else{
-            // L'utilisateur n'est pas connecté
-            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
-            header('Location: /users/login');
-            exit;
         }
     }
 
@@ -108,7 +98,7 @@ class CompteRenduController extends Controller{
      */
     public function modifierVehicule(int $id_salarie, string $date){
         // On vérifie si l'utilisateur est connecté
-        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
+        if($this->isLogin()){
             // On instancie le modèle correspondant au compte rendu
             $compteRenduModel = new CompteRenduModel;
 
@@ -210,11 +200,6 @@ class CompteRenduController extends Controller{
 
             // On génère la vue
             $this->render('compteRendu/modifier', ['form' => $form->create(), 'date' => $date, 'id_salarie' => $id_salarie]);
-        }else{
-            // L'utilisateur n'est pas connecté
-            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
-            header('Location: /users/login');
-            exit;
         }
     }
 }

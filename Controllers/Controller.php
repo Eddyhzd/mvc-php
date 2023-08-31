@@ -21,4 +21,20 @@ abstract class Controller
         // Template de page
         require_once ROOT.'/Views/'.$template.'.php';
     }
+
+    /**
+     * Check si l'utilisateur est connecté
+     */
+    public function isLogin(){
+        // On vérifie si l'utilisateur est connecté
+        if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
+            // On est connecté
+            return true;
+        }else{
+            // L'utilisateur n'est pas connecté
+            $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
+            header('Location: /users/login');
+            exit;
+        }
+    }
 }
