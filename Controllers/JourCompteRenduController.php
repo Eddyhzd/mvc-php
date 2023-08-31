@@ -28,9 +28,14 @@ class JourCompteRenduController extends Controller
                 exit;
             }
 
-            // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
+            // On vérifie si l'utilisateur est propriétaire du compte rendu ou manager de l'user ou admin
+            $chemin = 'compteRendu/affiche';
             if($jour->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
+                if(in_array('MANAGER', $_SESSION['user']['roles']) && in_array($jour->ID_SALARIE, array_column($_SESSION['user']['subs'], 'ID_SALARIE'))){
+                    $chemin = 'manager/compteRendu';
+                }elseif(in_array('ADMIN', $_SESSION['user']['roles'])){
+                    $chemin = 'admin/compteRendu';
+                }else{
                     $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
                     header('Location: /compteRendu');
                     exit;
@@ -57,7 +62,7 @@ class JourCompteRenduController extends Controller
             }
 
             // On redirige
-            header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
+            header("Location: /{$chemin}/{$id_salarie}/{$date}");
             exit;
         }else{
             // L'utilisateur n'est pas connecté
@@ -92,8 +97,13 @@ class JourCompteRenduController extends Controller
             }
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
+            $chemin = 'compteRendu/affiche';
             if($jour->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
+                if(in_array('MANAGER', $_SESSION['user']['roles']) && in_array($jour->ID_SALARIE, array_column($_SESSION['user']['subs'], 'ID_SALARIE'))){
+                    $chemin = 'manager/compteRendu';
+                }elseif(in_array('ADMIN', $_SESSION['user']['roles'])){
+                    $chemin = 'admin/compteRendu';
+                }else{
                     $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
                     header('Location: /compteRendu');
                     exit;
@@ -126,7 +136,7 @@ class JourCompteRenduController extends Controller
 
                 // On redirige
                 $_SESSION['message'] = "Note du {$date} mise à jour avec succès";
-                header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
+                header("Location: /{$chemin}/{$id_salarie}/{$date}");
                 exit;
             }
 

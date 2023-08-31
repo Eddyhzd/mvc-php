@@ -15,36 +15,7 @@ class CompteRenduController extends Controller{
     public function index(){
         // On vérifie si l'utilisateur est connecté
         if(isset($_SESSION['user']) && !empty($_SESSION['user']['id'])){
-            // On instancie le modèle correspondant au compte rendu et au jour pour les comptes rendu
-            $compteRenduModel = new CompteRenduModel;
-            $jourCompteRenduModel = new JourCompteRenduModel;
-            $congeModel = new CongeModel;
-
-            // On va chercher le compte rendu courant de l'utilisateur 
-            $cr = $compteRenduModel->findByDateAndSalarie(date('Y-m-01'), $_SESSION['user']['id']);
-
-            // On va chercher les jours du compte rendu courant de l'utilisateur 
-            $jourCompteRenduModelArray = $jourCompteRenduModel->findByMonthAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
-
-            $jours = [];
-            foreach ($jourCompteRenduModelArray as $key => $jourArray) {
-                $jour = (new JourCompteRenduModel)->hydrate($jourArray);
-                array_push($jours, $jour);
-            }
-
-            // On va chercher les conges associé au compte rendu
-            $conges = $congeModel->findByDateAndSalarie(date('Y-m-01'), date('Y-m-t'), $_SESSION['user']['id']);
-
-            if($conges){
-                // On merge les conges et les jours compte rendu
-                $jours = $jourCompteRenduModel->mergeConges($jours, $conges);
-            }
-
-            $prenom = ucfirst($_SESSION['user']['prenom']);
-            $nom = strtoupper($_SESSION['user']['nom']);
-
-            // On génère la vue
-            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jours', 'conges'));
+            $this->affiche($_SESSION['user']['id'], date('Y-m-01'));
         }else{
             // L'utilisateur n'est pas connecté
             $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
@@ -71,13 +42,11 @@ class CompteRenduController extends Controller{
             // On va chercher le compte rendu de l'utilisateur 
             $cr = $compteRenduModel->findByDateAndSalarie(date_format(new \Datetime($date), 'Y-m-01'), $id_salarie);
 
-            // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
+            // On vérifie si l'utilisateur est propriétaire du compte rendu
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
-                    $_SESSION['erreur'] = "Vous n'êtes pas autorisé à accéder ce compte rendu";
-                    header('Location: /compteRendu');
-                    exit;
-                }
+                $_SESSION['erreur'] = "Vous n'êtes pas autorisé à accéder ce compte rendu";
+                header('Location: /compteRendu');
+                exit;
             }
 
             // On va chercher les jours du compte rendu de l'utilisateur 
@@ -119,8 +88,10 @@ class CompteRenduController extends Controller{
             $prenom = ucfirst($user->PSA_PRENOM);
             $nom = strtoupper($user->PSA_LIBELLE);
 
+            $chemin = 'compteRendu/affiche';
+
             // On génère la vue
-            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jours', 'conges'));
+            $this->render('compteRendu/index', compact('prenom', 'nom', 'cr', 'jours', 'conges', 'chemin'));
         }else{
             // L'utilisateur n'est pas connecté
             $_SESSION['erreur'] = "Vous devez être connecté(e) pour accéder à cette page";
@@ -153,8 +124,13 @@ class CompteRenduController extends Controller{
             }
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
+            $chemin = 'compteRendu/affiche';
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
+                if(in_array('MANAGER', $_SESSION['user']['roles']) && in_array($cr->ID_SALARIE, array_column($_SESSION['user']['subs'], 'ID_SALARIE'))){
+                    $chemin = 'manager/compteRendu';
+                }elseif(in_array('ADMIN', $_SESSION['user']['roles'])){
+                    $chemin = 'admin/compteRendu';
+                }else{
                     $_SESSION['erreur'] = "Vous n'êtes pas autorisé à modifier ces informations";
                     header('Location: /compteRendu');
                     exit;
@@ -187,7 +163,7 @@ class CompteRenduController extends Controller{
 
                 // On redirige
                 $_SESSION['message'] = "Infos du compte rendu du " . date_format(new \Datetime($cr->DATE_CR), 'Y-m') . " mise à jour avec succès";
-                header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
+                header("Location: /{$chemin}/{$id_salarie}/{$date}");
                 exit;
             }
 

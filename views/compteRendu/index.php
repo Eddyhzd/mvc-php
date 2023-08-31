@@ -3,13 +3,13 @@
   <nav>
     <ul class="pagination pagination-lg justify-content-center">
       <li class="page-item">
-        <a class="page-link" href="/compteRendu/affiche/<?= $cr->ID_SALARIE ?>/<?= date("Y-m-01", strtotime ( '-1 month' , strtotime ( $cr->DATE_CR ) )) ?>" aria-label="Previous">
+        <a class="page-link" href="/<?=$chemin?>/<?= $cr->ID_SALARIE ?>/<?= date("Y-m-01", strtotime ( '-1 month' , strtotime ( $cr->DATE_CR ) )) ?>" aria-label="Previous">
           <span aria-hidden="true">&laquo;</span>
         </a>
       </li>
       <li class="page-item page-link"><?= date_format(new \Datetime($cr->DATE_CR), 'Y-m') ?></li>
       <li class="page-item">
-        <a class="page-link" href="/compteRendu/affiche/<?= $cr->ID_SALARIE ?>/<?= date("Y-m-01", strtotime ( '+1 month' , strtotime ( $cr->DATE_CR ) )) ?>" aria-label="Next">
+        <a class="page-link" href="/<?=$chemin?>/<?= $cr->ID_SALARIE ?>/<?= date("Y-m-01", strtotime ( '+1 month' , strtotime ( $cr->DATE_CR ) )) ?>" aria-label="Next">
           <span aria-hidden="true">&raquo;</span>
         </a>
       </li>
