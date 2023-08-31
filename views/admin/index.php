@@ -41,7 +41,7 @@
           <td class='col'></td>
           <td class='col'><a href="#">Relancer</a></td>
           <td class='col'><a href="#">Voir PDF</a></td>
-          <td class='col'><a href="#">Modifier</a></td>
+          <td class='col'><a href="/compteRendu/affiche/<?= $cr->ID_SALARIE ?>/<?= date("Y-m-01", strtotime ( '+1 month' , strtotime ( $cr->DATE_CR ) )) ?>">Modifier</a></td>
           <td class='col'><a href="#">Valider</a></td>
         <?php else :?>
           <td class='col'><?= $user->NOM ?></td>

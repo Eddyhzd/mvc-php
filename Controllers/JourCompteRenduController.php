@@ -30,7 +30,7 @@ class JourCompteRenduController extends Controller
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($jour->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
+                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
                     $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
                     header('Location: /compteRendu');
                     exit;
@@ -93,7 +93,7 @@ class JourCompteRenduController extends Controller
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($jour->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
+                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
                     $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
                     header('Location: /compteRendu');
                     exit;

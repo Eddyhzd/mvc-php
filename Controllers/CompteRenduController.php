@@ -73,7 +73,7 @@ class CompteRenduController extends Controller{
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
+                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
                     $_SESSION['erreur'] = "Vous n'êtes pas autorisé à accéder ce compte rendu";
                     header('Location: /compteRendu');
                     exit;
@@ -154,7 +154,7 @@ class CompteRenduController extends Controller{
 
             // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
             if($cr->ID_SALARIE != $_SESSION['user']['id']){
-                if(!in_array('ROLE_ADMIN', $_SESSION['user']['roles'])){
+                if(!in_array('ADMIN', $_SESSION['user']['roles'])){
                     $_SESSION['erreur'] = "Vous n'êtes pas autorisé à modifier ces informations";
                     header('Location: /compteRendu');
                     exit;
