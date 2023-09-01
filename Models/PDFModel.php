@@ -156,8 +156,8 @@ class PDFModel extends FPDF{
         $this->Text(150,195,utf8_decode("Signature N+1 :"));
 
         // Nom du fichier
-        $dir = '../tmp/' . ucfirst($this->user->getNom()) . '_' . strtoupper($this->user->getPrenom());
-        $nom = $dir . '/CR_' . ucfirst($this->user->getNom()) . '_' . strtoupper($this->user->getPrenom()) . $this->compteRendu->getDate_cr() . '.pdf';
+        $dir = '../tmp/' . strtoupper($this->user->getNom()) . '_' . strtoupper($this->user->getPrenom());
+        $nom = $dir . '/CR_' . strtoupper($this->user->getNom()) . '_' . strtoupper($this->user->getPrenom()) . $this->compteRendu->getDate_cr() . '.pdf';
 
         // On verifie si le dossier existe
         if (is_dir($dir) == false) {

@@ -106,6 +106,32 @@ class AdminController extends Controller{
     }
 
     /**
+     * Cette méthode affichera le pdf d'un user à une date donnée
+     * @param string $nom
+     * @param string $prenom
+     * @param string $date
+     * @return void 
+     */
+    public function pdf(string $nom, string $prenom, string $date){
+        // On vérifie si l'utilisateur est connecté
+        if($this->isAdmin()){
+            $dir = 'tmp/' . strtoupper($nom) . '_' . strtoupper($prenom);
+            $fichier = 'CR_' . strtoupper($nom) . '_' . strtoupper($prenom) . $date;
+            
+            // Le chemin du fichier (path) 
+            $chemin = "../{$dir}/{$fichier}.pdf"; 
+
+            // Type de contenu d'en-tête
+            header("Content-type: application/pdf"); 
+
+            header("Content-Length: " . filesize($chemin)); 
+
+            // Envoyez le fichier au navigateur.
+            readfile($chemin); 
+        }
+    }
+
+    /**
      * Vérifie si on est admin
      * @return true 
      */
