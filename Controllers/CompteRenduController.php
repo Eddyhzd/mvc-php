@@ -239,6 +239,7 @@ class CompteRenduController extends Controller{
             // On va chercher le compte rendu de l'utilisateur 
             $compteRenduInfos = $compteRendu->findByDateAndSalarie(date_format(new \Datetime($date), 'Y-m-01'), $id_salarie);
             $compteRendu->hydrate($compteRenduInfos);
+            $compteRendu->setMois(CompteRenduModel::$MOIS[date_format(new \Datetime($date), 'm')-1]);
 
             // On va chercher les jours du compte rendu de l'utilisateur 
             $jourCompteRenduModelArray = $jourCompteRenduModel->findByMonthAndSalarie(

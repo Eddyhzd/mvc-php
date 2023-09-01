@@ -30,6 +30,7 @@ class JourCompteRenduModel extends Model
         'ADI' => '#fab1a0',
         'JTR' => '#0080ff',
         'Ferie' => '#cd84f1',
+        'Week-end' => '#dfe6e9',
         'Default' => '#ffffff'
     );
 
@@ -168,7 +169,7 @@ class JourCompteRenduModel extends Model
     }
 
     public function setFrais_jour($frais_jour):self{
-        $this->frais_jour = $frais_jour;
+        $this->frais_jour = round($frais_jour, 2);
 
         return $this;
     }
@@ -178,7 +179,7 @@ class JourCompteRenduModel extends Model
     }
 
     public function setKm_vehicule_pro($km_vehicule_pro):self{
-        $this->km_vehicule_pro = $km_vehicule_pro;
+        $this->km_vehicule_pro = round($km_vehicule_pro);
 
         return $this;
     }
@@ -188,7 +189,7 @@ class JourCompteRenduModel extends Model
     }
 
     public function setKm_vehicule_perso($km_vehicule_perso):self{
-        $this->km_vehicule_perso = $km_vehicule_perso;
+        $this->km_vehicule_perso = round($km_vehicule_perso);
 
         return $this;
     }

@@ -48,7 +48,7 @@ class PDFModel extends FPDF{
         }
         $this->SetFont('Arial','',9);
         $this->Text(103,20,utf8_decode("NOM - PRENOM : ".strtoupper($this->user->getNom().' '.$this->user->getPrenom())));
-        $this->Text(122,25,utf8_decode("MOIS de : ".$this->compteRendu->getDate_cr()));
+        $this->Text(122,25,utf8_decode("MOIS de : " . $this->compteRendu->getMois()));
         $this->Text(75,30,utf8_decode("Ce compte-rendu est "));
         $this->SetTextColor(255, 0, 0);
         $this->Text(117,30,utf8_decode("A RETOURNER SIGNE avant le 5 du mois suivant"));
@@ -67,8 +67,8 @@ class PDFModel extends FPDF{
             utf8_decode('TR') => $width_cell[3], 
             utf8_decode('Activité') => $width_cell[4], 
             utf8_decode("Frais") => $width_cell[5], 
-            utf8_decode("Kms Perso avec \n véhicule de service") => $width_cell[6], 
-            utf8_decode("Kms Pro avec \n véhicule personnel") => $width_cell[7]
+            utf8_decode("Kms Perso avec véhicule de service") => $width_cell[6], 
+            utf8_decode("Kms Pro avec véhicule personnel") => $width_cell[7]
         ];
         // En Tête
         $this->SetTextColor(0,0,0);
@@ -84,22 +84,17 @@ class PDFModel extends FPDF{
 
             $fond = '#ffffff';
 
-            // Si samedi / dimanche, on grise la ligne
             $date_jour = new \Datetime($jour->getDate_jour());
-            if($jour->getConges_matin() != 'JTR' && $jour->getConges_apresmidi() == 'JTR'){
-                switch ($date_jour->format('D')){
-                    case "Sun":
-                        $jour->setConges_matin('RH')->setConges_apresmidi('RH')
-                        ->setColor_matin('#dfe6e9')->setColor_apresmidi('#dfe6e9');
-                        $fond = '#dfe6e9';
-                        break;
-                    case "Sat":
-                        $jour->setConges_matin('D')->setConges_apresmidi('D')
-                        ->setColor_matin('#dfe6e9')->setColor_apresmidi('#dfe6e9');
-                        $fond = '#dfe6e9';
-                        break;
-                    default:
-                        break;
+            if ($date_jour->format('D') == "Sun" || $date_jour->format('D') == "Sat"){
+                // Si samedi / dimanche, on grise la ligne sauf si c'est un jour travaillé
+                $fond = '#dfe6e9';
+                if($jour->getConges_matin() != 'JTR' && $jour->getConges_apresmidi() != 'JTR'){
+                    if ($date_jour->format('D') == "Sun"){
+                        $jour->setConges_matin('RH')->setConges_apresmidi('RH');
+                    }else{
+                        $jour->setConges_matin('D')->setConges_apresmidi('D');
+                    }
+                    $jour->setColor_matin('Week-end')->setColor_apresmidi('Week-end');
                 }
             }
             
@@ -110,15 +105,15 @@ class PDFModel extends FPDF{
             $this->setFillColor($r, $g, $b);
             $this->Cell($width_cell[0], $height_cell, $date_jour->format('d'),1,0,'C', 1);
             $this->setFillColor($r_matin, $g_matin, $b_matin);
-            $this->Cell($width_cell[1], $height_cell, $jour->getConges_matin(), 1, 0, 'C', 1);
+            $this->Cell($width_cell[1], $height_cell, empty($jour->getConges_matin()) ? '1' : $jour->getConges_matin(), 1, 0, 'C', 1);
             $this->setFillColor($r_apresmidi, $g_apresmidi, $b_apresmidi);
-            $this->Cell($width_cell[2], $height_cell, $jour->getConges_apresmidi(), 1, 0, 'C', 1);
+            $this->Cell($width_cell[2], $height_cell, empty($jour->getConges_apresmidi()) ? '1' : $jour->getConges_apresmidi(), 1, 0, 'C', 1);
             $this->setFillColor($r, $g, $b);
             $this->Cell($width_cell[3], $height_cell, $jour->getTicket(), 1, 0, 'C', 1);
             $this->Cell($width_cell[4], $height_cell, $jour->getNotes_jour(), 1, 0, 'C', 1);
-            $this->Cell($width_cell[5], $height_cell, $jour->getFrais_jour() >= 0 ? round($jour->getFrais_jour(), 2) : '', 1, 0, 'C', 0);
-            $this->Cell($width_cell[6], $height_cell, $jour->getKm_vehicule_perso() != 0 ? $jour->getKm_vehicule_perso() : '', 1, 0, 'C', 0);
-            $this->Cell($width_cell[7], $height_cell, $jour->getKm_vehicule_pro() != 0 ? $jour->getKm_vehicule_pro() : '' , 1, 1, 'C', 0);
+            $this->Cell($width_cell[5], $height_cell, empty($jour->getFrais_jour()) ? '' : round($jour->getFrais_jour(), 2), 1, 0, 'C', 1);
+            $this->Cell($width_cell[6], $height_cell, empty($jour->getKm_vehicule_perso()) ? '' : $jour->getKm_vehicule_perso(), 1, 0, 'C', 1);
+            $this->Cell($width_cell[7], $height_cell, empty($jour->getKm_vehicule_pro()) ? '' : $jour->getKm_vehicule_pro(), 1, 1, 'C', 1);
         }
 
         // Total des frais du mois
@@ -153,7 +148,7 @@ class PDFModel extends FPDF{
 
         $this->SetTextColor(0,0,0);
 
-        $this->Text(20,175,utf8_decode("Je déclare avoir respecté au cours du mois de " . $this->compteRendu->getDate_cr()));
+        $this->Text(20,175,utf8_decode("Je déclare avoir respecté au cours du mois de " . $this->compteRendu->getMois()));
         $this->Text(20,180,utf8_decode("l'amplitude maximale de travail (13 heures), les temps minimaux de repos quotidien (11 heures) et hebdomadaire (repos dominical de 35h) prévus par la loi et"));
         $this->Text(20,185,utf8_decode("l'accord d'entreprise. Je m'engage, pour les mois à venir, à répartir ma charge de travail de manière équilibrée dans le temps"));
 

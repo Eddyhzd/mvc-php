@@ -6,6 +6,7 @@ class CompteRenduModel extends Model
     protected $id;
     protected $id_salarie;
     protected $mois_cr;
+    protected $mois;
     protected $statut_cr;
     protected $num_vehicule;
     protected $km_debut;
@@ -16,6 +17,20 @@ class CompteRenduModel extends Model
     protected $date_cr;
     protected $notes;
     protected $total_frais;
+    public static array $MOIS = array(
+        'Janvier',
+        'Fevrier',
+        'Mars',
+        'Avril',
+        'Mai',
+        'Juin',
+        'Juillet',
+        'Août',
+        'Septembre',
+        'Octobre',
+        'Novembre',
+        'Décembre'
+    );
 
     public function __construct()
     {
@@ -196,4 +211,15 @@ class CompteRenduModel extends Model
 
         return $this;
     }
+
+    public function getMois(){
+        return $this->mois;
+    }
+
+    public function setMois($mois){
+        $this->mois = $mois;
+
+        return $this;
+    }
+
 }
