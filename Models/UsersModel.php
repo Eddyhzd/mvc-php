@@ -9,6 +9,7 @@ class UsersModel extends Model
     protected $prenom;
     protected $roles;
     protected $subs;
+    protected $forfait;
 
     public function __construct()
     {
@@ -24,24 +25,26 @@ class UsersModel extends Model
     public function findOneByEmail(string $email){
         return $this->requete(
             "WITH TEMP AS (
-                SELECT DISTINCT sal.PSA_SALARIE,
-                sal.PSA_LIBELLE,
-                sal.PSA_PRENOM,
-                S.PSE_EMAILPROF
+                SELECT DISTINCT sal.PSA_SALARIE AS ID,
+                sal.PSA_LIBELLE AS NOM,
+                sal.PSA_PRENOM AS PRENOM,
+                sal.PSA_PROFILREM AS FORFAIT,
+                S.PSE_EMAILPROF AS EMAIL
                 FROM SALARIES sal
                 INNER JOIN DEPORTSAL S ON S.PSE_SALARIE=SAL.PSA_SALARIE
                 UNION
-                SELECT DISTINCT sal.PSA_SALARIE,
-                sal.PSA_LIBELLE,
-                sal.PSA_PRENOM,
-                S.PSE_EMAILPROF
+                SELECT DISTINCT sal.PSA_SALARIE AS ID,
+                sal.PSA_LIBELLE AS NOM,
+                sal.PSA_PRENOM AS PRENOM,
+                sal.PSA_PROFILREM AS FORFAIT,
+                S.PSE_EMAILPROF AS EMAIL
                 FROM TECMATEL.DBO.SALARIES sal
                 INNER JOIN TECMATEL.[dbo].DEPORTSAL S ON S.PSE_SALARIE=SAL.PSA_SALARIE
             )
-            SELECT DISTINCT RIGHT(sal.PSA_SALARIE, 6) AS PSA_ID,
+            SELECT DISTINCT RIGHT(sal.ID, 6) AS ID,
             *
             FROM TEMP SAL
-            WHERE PSE_EMAILPROF = ?"
+            WHERE EMAIL = ?"
             , [$email])->fetch()
         ;
     }
@@ -54,24 +57,26 @@ class UsersModel extends Model
     public function findOneById(string $id_salarie){
         return $this->requete(
             "WITH TEMP AS (
-                SELECT DISTINCT sal.PSA_SALARIE,
-                sal.PSA_LIBELLE,
-                sal.PSA_PRENOM,
-                S.PSE_EMAILPROF
+                SELECT DISTINCT sal.PSA_SALARIE AS ID,
+                sal.PSA_LIBELLE AS NOM,
+                sal.PSA_PRENOM AS PRENOM,
+                sal.PSA_PROFILREM AS FORFAIT,
+                S.PSE_EMAILPROF AS EMAIL
                 FROM SALARIES sal
                 INNER JOIN DEPORTSAL S ON S.PSE_SALARIE=sal.PSA_SALARIE
                 UNION
-                SELECT DISTINCT sal.PSA_SALARIE,
-                sal.PSA_LIBELLE,
-                sal.PSA_PRENOM,
-                S.PSE_EMAILPROF
+                SELECT DISTINCT sal.PSA_SALARIE AS ID,
+                sal.PSA_LIBELLE AS NOM,
+                sal.PSA_PRENOM AS PRENOM,
+                sal.PSA_PROFILREM AS FORFAIT,
+                S.PSE_EMAILPROF AS EMAIL
                 FROM TECMATEL.DBO.SALARIES sal
                 INNER JOIN TECMATEL.[dbo].DEPORTSAL S ON S.PSE_SALARIE=sal.PSA_SALARIE
             )
-            SELECT DISTINCT RIGHT(sal.PSA_SALARIE, 6) AS PSA_ID,
+            SELECT DISTINCT RIGHT(sal.ID, 6) AS ID,
             *
             FROM TEMP sal
-            WHERE RIGHT(sal.PSA_SALARIE, 6) = ?"
+            WHERE RIGHT(sal.ID, 6) = ?"
             , [$id_salarie])->fetch()
         ;
     }
@@ -85,7 +90,7 @@ class UsersModel extends Model
     public function findSubByDate(string $date, string $id_salarie){
         return $this->requete(
             "WITH TEMP AS (
-                SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID_SALARIE
+                SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID
                     ,sal.PSA_LIBELLE AS NOM
                     ,sal.PSA_PRENOM AS PRENOM
                     ,[PFH_REFERENTRH]
@@ -94,7 +99,7 @@ class UsersModel extends Model
                 FROM [EILYPS].[dbo].[PGAFFECTROLERH] 
                 inner JOIN SALARIES sal ON PFH_SALARIE = sal.PSA_SALARIE
                 UNION
-                SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID_SALARIE
+                SELECT DISTINCT RIGHT(PFH_SALARIE, 6) AS ID
                     ,sal.PSA_LIBELLE AS NOM
                     ,sal.PSA_PRENOM AS PRENOM
                     ,[PFH_REFERENTRH]
@@ -103,7 +108,7 @@ class UsersModel extends Model
                 FROM [TECMATEL].[dbo].[PGAFFECTROLERH] 
                 inner JOIN [TECMATEL].[dbo].SALARIES sal ON PFH_SALARIE = sal.PSA_SALARIE
             )
-            SELECT DISTINCT ID_SALARIE, NOM, PRENOM FROM TEMP
+            SELECT DISTINCT ID, NOM, PRENOM FROM TEMP
             WHERE RIGHT(PFH_REFERENTRH, 6) = ?
             AND (YEAR(PSA_DATESORTIE) = 1900
             OR ? between EOMONTH(PSA_DATEENTREE, -1) and EOMONTH(PSA_DATESORTIE))"
@@ -119,21 +124,21 @@ class UsersModel extends Model
     public function findAllByDate(string $date){
         return $this->requete(
             "WITH TEMP AS (
-                SELECT DISTINCT RIGHT(PSA_SALARIE, 6) AS ID_SALARIE
+                SELECT DISTINCT RIGHT(PSA_SALARIE, 6) AS ID
                     ,sal.PSA_LIBELLE AS NOM
                     ,sal.PSA_PRENOM AS PRENOM
                     ,sal.PSA_DATEENTREE
                     ,sal.PSA_DATESORTIE
                 FROM SALARIES sal
                 UNION
-                SELECT DISTINCT RIGHT(PSA_SALARIE, 6) AS ID_SALARIE
+                SELECT DISTINCT RIGHT(PSA_SALARIE, 6) AS ID
                     ,sal.PSA_LIBELLE AS NOM
                     ,sal.PSA_PRENOM AS PRENOM
                     ,sal.PSA_DATEENTREE
                     ,sal.PSA_DATESORTIE
                 FROM [TECMATEL].[dbo].SALARIES sal
             )
-            SELECT DISTINCT ID_SALARIE, NOM, PRENOM FROM TEMP
+            SELECT DISTINCT ID, NOM, PRENOM FROM TEMP
             WHERE YEAR(PSA_DATESORTIE) = 1900
             OR ? between EOMONTH(PSA_DATEENTREE, -1) and EOMONTH(PSA_DATESORTIE)"
             , [$date])->fetchAll()
@@ -259,6 +264,24 @@ class UsersModel extends Model
      */ 
     public function setSubs($subs):self{
         $this->subs = $subs;
+
+        return $this;
+    }
+    
+    /**
+     * Get the value of forfait
+     */ 
+    public function getForfait(){
+        return $this->forfait;
+    }
+
+    /**
+     * Set the value of forfait
+     * @param $forfait
+     * @return  self
+     */ 
+    public function setForfait($forfait):self{
+        $this->forfait = $forfait;
 
         return $this;
     }

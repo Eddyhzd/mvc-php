@@ -13,6 +13,21 @@ class JourCompteRenduController extends Controller
     public function modifierTicket(){
         // On vérifie si l'utilisateur est connecté et accède via le formulaire
         if($this->isLogin() && $_SERVER['REQUEST_METHOD'] === 'POST'){
+
+            // On vérifie si l'utilisateur est propriétaire du compte rendu ou manager de l'user ou admin
+            $chemin = 'compteRendu/affiche';
+            if($_POST['id_salarie'] != $_SESSION['user']['id']){
+                if(in_array('MANAGER', $_SESSION['user']['roles']) && in_array($_POST['id_salarie'], array_column($_SESSION['user']['subs'], 'ID_SALARIE'))){
+                    $chemin = 'manager/compteRendu';
+                }elseif(in_array('ADMIN', $_SESSION['user']['roles'])){
+                    $chemin = 'admin/compteRendu';
+                }else{
+                    $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
+                    header('Location: /compteRendu');
+                    exit;
+                }
+            }
+
             // On va vérifier si le jour existe dans la base
             // On instancie notre modèle
             $jourCompteRenduModel = new JourCompteRenduModel;
@@ -28,19 +43,7 @@ class JourCompteRenduController extends Controller
                 exit;
             }
 
-            // On vérifie si l'utilisateur est propriétaire du compte rendu ou manager de l'user ou admin
-            $chemin = 'compteRendu/affiche';
-            if($jour->ID_SALARIE != $_SESSION['user']['id']){
-                if(in_array('MANAGER', $_SESSION['user']['roles']) && in_array($jour->ID_SALARIE, array_column($_SESSION['user']['subs'], 'ID_SALARIE'))){
-                    $chemin = 'manager/compteRendu';
-                }elseif(in_array('ADMIN', $_SESSION['user']['roles'])){
-                    $chemin = 'admin/compteRendu';
-                }else{
-                    $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
-                    header('Location: /compteRendu');
-                    exit;
-                }
-            }
+            
 
             // On traite le formulaire
             if(Form::validate($_POST, ['date', 'id_salarie'])){
@@ -76,6 +79,21 @@ class JourCompteRenduController extends Controller
     public function modifierJour(int $id_salarie, string $date){
         // On vérifie si l'utilisateur est connecté
         if($this->isLogin()){
+
+            // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
+            $chemin = 'compteRendu/affiche';
+            if($id_salarie != $_SESSION['user']['id']){
+                if(in_array('MANAGER', $_SESSION['user']['roles']) && in_array($id_salarie, array_column($_SESSION['user']['subs'], 'ID_SALARIE'))){
+                    $chemin = 'manager/compteRendu';
+                }elseif(in_array('ADMIN', $_SESSION['user']['roles'])){
+                    $chemin = 'admin/compteRendu';
+                }else{
+                    $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
+                    header('Location: /compteRendu');
+                    exit;
+                }
+            }
+
             // On va vérifier si le jour existe dans la base
             // On instancie notre modèle
             $jourCompteRenduModel = new JourCompteRenduModel;
@@ -89,20 +107,6 @@ class JourCompteRenduController extends Controller
                 $_SESSION['erreur'] = "Le jour choisi n'est pas modifiable";
                 header("Location: /compteRendu/affiche/{$id_salarie}/{$date}");
                 exit;
-            }
-
-            // On vérifie si l'utilisateur est propriétaire du compte rendu ou admin
-            $chemin = 'compteRendu/affiche';
-            if($jour->ID_SALARIE != $_SESSION['user']['id']){
-                if(in_array('MANAGER', $_SESSION['user']['roles']) && in_array($jour->ID_SALARIE, array_column($_SESSION['user']['subs'], 'ID_SALARIE'))){
-                    $chemin = 'manager/compteRendu';
-                }elseif(in_array('ADMIN', $_SESSION['user']['roles'])){
-                    $chemin = 'admin/compteRendu';
-                }else{
-                    $_SESSION['erreur'] = "Vous ne pouvez pas modifier ce compte rendu";
-                    header('Location: /compteRendu');
-                    exit;
-                }
             }
 
             // On traite le formulaire

@@ -31,11 +31,11 @@
     <tbody>
       <?php foreach ($users as $key => $user) : ?>
         <tr class='row <?= $key%2 == 0 ? 'bg-light' : 'bg-white'?>'>
-        <?php if (array_key_exists($user->ID_SALARIE,$crs)):
-                $cr = $crs[$user->ID_SALARIE];
+        <?php if (array_key_exists($user->getId(),$crs)):
+                $cr = $crs[$user->getId()];
         ?>
-          <td class='col'><?= $user->NOM ?></td>
-          <td class='col'><?= $user->PRENOM ?></td>
+          <td class='col'><?= $user->getNom() ?></td>
+          <td class='col'><?= $user->getPrenom() ?></td>
           <td class='col'><?= $cr->STATUT_CR ?></td>
           <td class='col'><?= $cr->NB_TICKET ?></td>
           <td class='col'></td>
@@ -44,8 +44,8 @@
           <td class='col'><a href="/admin/compteRendu/<?= $cr->ID_SALARIE ?>/<?= date("Y-m-01",strtotime( $cr->DATE_CR )) ?>">Modifier</a></td>
           <td class='col'><a href="#">Valider</a></td>
         <?php else :?>
-          <td class='col'><?= $user->NOM ?></td>
-          <td class='col'><?= $user->PRENOM ?></td>
+          <td class='col'><?= $user->getNom() ?></td>
+          <td class='col'><?= $user->getPrenom() ?></td>
           <td class='col'>Non entamé</td>
           <td class='col'></td>
           <td class='col'></td>

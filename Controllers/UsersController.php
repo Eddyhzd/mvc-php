@@ -29,7 +29,7 @@ class UsersController extends Controller
                 $email = strip_tags($_POST['email']);
                 $password = strip_tags($_POST['password']);
 
-                $usersModel = new UsersModel;
+                $user = new UsersModel;
 
                 $ldapconn = ldap_connect("10.200.160.1", "389") or die("Could not connect to LDAP server.");
 
@@ -43,12 +43,12 @@ class UsersController extends Controller
                 // On vérifie si le mot de passe est correct
                 if($authenticated){
                     // Le mot de passe est bon
-                    $userInfos = $usersModel->findOneByEmail($email);
+                    $userInfos = $user->findOneByEmail($email);
 
                     $roles = ['USER'];
 
                     // Role de manager
-                    $subs = $usersModel->findSubByDate(date('Y-m-d'), $userInfos->PSA_ID);
+                    $subs = $user->findSubByDate(date('Y-m-d'), $userInfos->ID);
                     if ($subs){
                         array_push($roles, 'MANAGER');
                     }
@@ -59,11 +59,11 @@ class UsersController extends Controller
                     }
 
                     // On crée la session
-                    $user = $usersModel->hydrate([
-                        'id' => $userInfos->PSA_ID,
-                        'email' => $userInfos->PSE_EMAILPROF,
-                        'nom' => $userInfos->PSA_LIBELLE,
-                        'prenom' => $userInfos->PSA_PRENOM,
+                    $user->hydrate([
+                        'id' => $userInfos->ID,
+                        'email' => $userInfos->EMAIL,
+                        'nom' => $userInfos->NOM,
+                        'prenom' => $userInfos->PRENOM,
                         'roles' => $roles,
                         'subs' => $subs
                     ]);

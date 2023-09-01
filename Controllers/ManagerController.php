@@ -47,7 +47,7 @@ class ManagerController extends Controller
             // On instancie le modèle correspondant au compte rendu, au jour pour les comptes rendu et au user
             $compteRenduModel = new CompteRenduModel;
             $jourCompteRenduModel = new JourCompteRenduModel;
-            $usersModel = new UsersModel;
+            $user = new UsersModel;
             $congeModel = new CongeModel;
 
             // On va chercher le compte rendu de l'utilisateur 
@@ -67,7 +67,8 @@ class ManagerController extends Controller
             }
 
             // On va chercher l'utilisateur 
-            $user = $usersModel->findOneById($id_salarie);
+            $userInfos = $user->findOneById($id_salarie);
+            $user->hydrate($userInfos);
 
             // Si le compte rendu n'existe pas, on retourne au compte rendu courant
             if(!$cr || !$jours || !$user){
@@ -89,8 +90,8 @@ class ManagerController extends Controller
                 $jours = $jourCompteRenduModel->mergeConges($jours, $conges);
             }
 
-            $prenom = ucfirst($user->PSA_PRENOM);
-            $nom = strtoupper($user->PSA_LIBELLE);
+            $prenom = ucfirst($user->getPrenom());
+            $nom = strtoupper($user->getNom());
 
             $chemin = 'manager/compteRendu';
 

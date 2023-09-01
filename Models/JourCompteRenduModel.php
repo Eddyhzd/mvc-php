@@ -29,12 +29,15 @@ class JourCompteRenduModel extends Model
         'MLJ' => '#00AAF2',
         'ADI' => '#fab1a0',
         'JTR' => '#0080ff',
-        'Ferie' => '#cd84f1');
+        'Ferie' => '#cd84f1',
+        'Default' => '#ffffff'
+    );
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->table = 'RH_CR_JOURS';
         $this->base = 'ESI';
+        $this->color_matin = self::$colors['Default'];
+        $this->color_apresmidi = self::$colors['Default'];
     }
 
     public function findAllByDate(string $date){
@@ -95,7 +98,7 @@ class JourCompteRenduModel extends Model
         // On boucle pour éclater le tableau
         foreach ($this as $champ => $valeur) {
             // on retire les valeurs null et les champs qui ne doivent pas être modifiés 
-            if ($valeur !== null && !in_array($champ, ['db', 'table', 'id', 'base', 'id_salarie', 'date_jour'])) {
+            if ($valeur !== null && !in_array($champ, ['db', 'table', 'id', 'base', 'id_salarie', 'date_jour', 'color_matin', 'color_apresmidi'])) {
                 $champs[] = strtoupper($champ) ." = ?";
                 $valeurs[] = $valeur;
             }
